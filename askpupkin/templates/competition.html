@@ -1,0 +1,63 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block content %}
+    <p class="h2">Результаты соревнования №5839043/p>
+    <form>
+        <div class="form-group">
+            <label>Название</label>
+            <input type="text" readonly class="form-control-plaintext" placeholder="Название: Турнир класса А (Саров)">
+        </div>
+        <div class="form-group">
+            <label>Дата</label>
+            <textarea readonly class="form-control-plaintext">18.05/1990</textarea>
+        </div>
+        <div class="form-group">
+            <label>Место проведения</label>
+            <input type="text" readonly class="form-control-plaintext" placeholder="Место проведения">
+        </div>
+        <div class="form-group">
+            <label>Ответственные</label>
+            <textarea readonly class="form-control-plaintext" rows="3">
+                Сорокин И.А.
+                Давыдов Д.М.
+            </textarea>
+        </div>
+        <div class="form-group">
+            <label>Уровень</label>
+            <input type="number" readonly class="form-control-plaintext" placeholder="КМС МС">
+        </div>
+        <div class="form-group">
+            <label for="inputState">Вид спорта</label>
+            <select id="inputState" readonly class="form-control">
+                <option selected>Бокс</option>
+                <option>Кикбоксинг</option>
+            </select>
+        </div>
+    </form>
+    <table class="table table-bordered">
+        <thead>
+        <tr>
+            <th scope="col">№</th>
+            <th scope="col">Ф.И.О.</th>
+            <th scope="col">Место</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr>
+            <th scope="row">1</th>
+            <td>Марк</td>
+            <td>1</td>
+        </tr>
+        <tr>
+            <th scope="row">2</th>
+            <td>Иван</td>
+            <td>2</td>
+        </tr>
+        <tr>
+            <th scope="row">3</th>
+            <td>Вадим</td>
+            <td>3</td>
+        </tr>
+        </tbody>
+    </table>
+{% endblock %}

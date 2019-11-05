@@ -1,28 +1,7 @@
 {% extends 'base.html' %}
 {% load static %}
 {% block content %}
-    <div class="content d-flex">
-        <p class="h2 ml-2 mr-2">New Questions</p>
-        <a href="{% url "hot" %}"><p>Hot Questions</p></a>
-    </div>
-    {% for question in questions %}
-        <div class="content forms">
-            <div class="row">
-                <div class="col-4 d-flex flex-column">
-                    <img src="{% static "images/avatar.webp" %}" class="rounded m-2"/>
-                    <input type="number" name="like" class="form-control m-2 col-3" value="5" size="2"/>
-                </div>
-                <div class="col-6">
-                    <span><a href="{% url "question" question.id %}">{{ question.title }}</a></span>
-                    <span> rating={{ question.rating }}</span>
-                    <span>data={{ question.data_create }}</span>
-                    <p>{{ question.content }}</p>
-                    <a href="{% url 'question' question.id %}">Answer({{ question.answer_count }}) </a><span>Tags: </span>
-                    {% for tag in question.tag.all %}
-                        <a href="{% url 'tag' tag.tag_word %}"> {{ tag.tag_word }}
-                    {% endfor %}</a>
-                </div>
-            </div>
-        </div>
-    {% endfor %}
+<div class="row">
+
+</div>
 {% endblock %}

@@ -21,16 +21,16 @@ def question_list(request, tag=None):
     return render(request, 'index.html', context=context)
 
 
-def question(request, number):
+def competition(request, number):
     answers = Answer.objects.filter(question=number)
     question = Question.objects.filter(id=number)
-    return render(request, 'question.html', {'answers': answers, 'questions': question})
+    return render(request, 'competition.html', {'answers': answers, 'questions': question})
 
 
-def ask(request):
+def new_competition(request):
     tags = Tag.objects.all()
     context = {'tags': tags}
-    return render(request, 'ask.html', context=context)
+    return render(request, 'new_competition.html', context=context)
 
 
 def login(request):
