@@ -1,0 +1,18 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block content %}
+    <div class="h1 ml-4">Log In</div>
+    <form>
+    <p class="alert-danger">Sorry, wrong password</p>
+        <div class="form-inline mb-2">
+            <label for="usr">Login</label>
+            <input type="text" class="form-control ml-4" id="login" placeholder="Enter your login here">
+        </div>
+        <div class="form-inline mb-2">
+            <label for="comment">Text</label>
+            <input class="form-control  ml-4" type="password"  id="passwd">
+        </div>
+        <input type="button" class="btn btn-outline-success ml-4" value="Log in!">
+    </form>
+    <a href="#" class="ml-4">create new account</a>
+{% endblock %}

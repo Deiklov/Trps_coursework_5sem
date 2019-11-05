@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    {% load staticfiles %}
+    <meta charset="utf-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no"/>
+    <link rel="shortcut icon" type="image/png" href="{% static 'images/favicon.ico' %}"/>
+    <link rel="stylesheet" type="text/css" href="{% static "css/bootstrap.min.css" %}"/>
+    <link rel="stylesheet" href="{% static "css/style.css" %}"/>
+    <title>Ask Pupkin</title>
+</head>
+<body class="container-fluid">
+<div class="main-block">
+    <header>
+        <nav class="navbar navbar-expand-md navbar-light bg-light">
+            <div class="navbar-search col-9 d-flex flex-row">
+                <ul class="navbar-nav">
+                    <li class="nav-item active">
+                        <a class="nav-link" href="/"><h2>Ask Pupkin</h2></a>
+                    </li>
+                </ul>
+                <form class="form-inline my-1">
+                    <input type="text" class="form-control" placeholder="Search" aria-label="Search"/>
+                    <button class="btn btn-outline-success m-2">Ask!</button>
+                </form>
+            </div>
+            <div class="content d-flex flex-row align-content-center col-3">
+                <a href="{% url "settings" %}"><img src="{% static "images/avatar.webp" %}" class="rounded m-2"
+                                                    alt="Cinque Terre" width="60" height="60"/></a>
+                <div class="content-user d-flex flex-column align-content-center">
+                    <span class="name m-2">Dr.Papper</span>
+                    <ul class="navbar-nav d-flex flex-row">
+                        <li class="nav-item">
+                            <a class="nav-link" href="{% url "settings" %}">Setting</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="#">Log out</a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </nav>
+    </header>
+    <hr/>
+    <div class="main-content">
+        <section class="d-flex">
+            <div class="left-content ml-5 col-7">
+                {% block content %}
+
+                {% endblock %}
+            </div>
+            <div class="right-content col-3">
+                {% block tag %}
+                    <div class="content tags">
+                        <h2>Popular Tags</h2>
+                        {% for tag in tags %}
+                            <a href="{% url "tag" tag.tag_word %}"><span>{{ tag.tag_word }}</span></a>
+                        {% endfor %}
+                    </div>
+                {% endblock tag %}
+                <div class="content memberes d-flex flex-column">
+                    <h2>Best Memberes</h2>
+                    <a href="#">Mr. Freeman</a>
+                    <a href="#">Dr. House</a>
+                    <a href="#">Bender</a>
+                    <a href="#">Queen Victoria</a>
+                    <a href="#">V Pupkin</a>
+                </div>
+            </div>
+        </section>
+    </div>
+    {% block pagin %}
+        <div class="row ml-5 justify-content-start">
+            {% if page.has_previous %}
+                <a class="btn btn-outline-info mb-4" href="?page={{ page.previous_page_number }}">&laquo;</a>
+            {% endif %}
+            {% for num in paginator.page_range %}
+                {% if page.number == num %}
+                    <a class="btn btn-info mb-4" href="?page={{ num }}">{{ num }}</a>
+                {% elif num > page.number|add:'-3' and num < page.number|add:'3' %}
+                    <a class="btn btn-outline-info mb-4" href="?page={{ num }}">{{ num }}</a>
+                {% endif %}
+            {% endfor %}
+            {% if page.has_next %}
+                <a class="btn btn-outline-info mb-4" href="?page={{ page.next_page_number }}">&raquo;</a>
+            {% endif %}
+        </div>
+    {% endblock %}
+    <footer id="sticky-footer" class="py-4 bg-dark text-white-50">
+        <div class="text-center">
+            <small>Copyright &copy; Your Website</small>
+        </div>
+    </footer>
+</div>
+<script src="{% static "js/jquery.min.js" %}"></script>
+<script src="{% static "js/popper.min.js" %}"></script>
+<script src="{% static "js/bootstrap.min.js" %}"></script>
+</body>
+</html>
