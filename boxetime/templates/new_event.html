@@ -2,7 +2,8 @@
 {% load static %}
 {% block content %}
     <p class="h2">Создание нового соревнования</p>
-    <form>
+    <form action="{% url "new_event" %}" method="post">
+        {% csrf_token %}
         <div class="form-group">
             <label>Название</label>
             <input type="text" class="form-control" placeholder="Название">
@@ -40,5 +41,6 @@
                       placeholder="Кому посвящены? Сколько раз проводились? С какого года? Информация с прошлых лет и т.д.">
             </textarea>
         </div>
+        <button type="submit" class="btn btn-info">Создать меороприятие</button>
     </form>
 {% endblock %}

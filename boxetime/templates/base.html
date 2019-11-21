@@ -10,25 +10,44 @@
     <title>Box_time</title>
 </head>
 <body>
-<div class="d-flex flex-column flex-md-row fixed-top align-items-center p-3 px-md-4 mb-3 bg-white border-bottom shadow-sm">
-    <h5 class="my-0 mr-md-auto font-weight-normal"><a href="/">Бокстайм</a></h5>
-    <nav class="my-2 my-md-0 mr-md-3">
-        <a class="p-2 text-dark" href="#">Новое соревнование</a>
-        <a class="p-2 text-dark" href="#">Результаты</a>
-        <a class="p-2 text-dark" href="#">Инструкция</a>
-    </nav>
-    <a class="btn btn-outline-primary" href="#">Войти</a>
-</div>
-<section class="container">
-    {% block content %}
+<header>
+    <!-- Fixed navbar -->
+    <nav class="navbar navbar-expand-md navbar-light fixed-top bg-white border-bottom">
+        <a class="navbar-brand" href="/">Бокстайм</a>
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarCollapse"
+                aria-controls="navbarCollapse" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarCollapse">
+            <ul class="navbar-nav mr-auto">
+                <li class="nav-item active">
+                    <a class="nav-link" href="{% url "new_event" %}">Новое событие</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="{% url "event_list" %}">Результаты</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="{% url "instruction" %}">Инструкция</a>
+                </li>
+            </ul>
+            {% if user.is_authenticated %}<span class="btn-sm">hello {{ user.username }}</span>
+                <a class="btn btn-sm btn-outline-secondary" href="{% url 'logout' %}">Log out</a>
+                <a class="btn btn-sm btn-outline-secondary" href="{% url 'password_change' %}">Change password</a>
+            {% else %}
+                <a class="btn btn-sm btn-outline-secondary" href="{% url 'signup' %}">Sign up</a>
+                <a class="btn btn-sm btn-outline-secondary" href="{% url 'login' %}">Log in</a>
+            {% endif %}
 
+        </div>
+    </nav>
+</header>
+<main role="main" class="container">
+    {% block content %}
     {% endblock %}
-</section>
+</main>
 <footer class="footer">
     <div class="container">
-        <div class="text-center py-3">
-            © 2018 Copyright:<a href="#"> MDBootstrap.com</a>
-        </div>
+        <span class="text-muted">Boxtime</span>
     </div>
 </footer>
 </div>
