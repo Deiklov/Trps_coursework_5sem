@@ -7,11 +7,8 @@
             <p>Название {{ event.title }}</p>
             <p>Дата {{ event.date }}</p>
             <p>Место {{ event.place }}</p>
-            <p>Уровень {{ event.level }}</p>
-            <p>Описание {{ event.description }}</p>
-            <p>Спорт {{ event.sport }}</p>
-            <p>Ответственные {{ event.responsible }}</p>
-            {#        <a href='{{ MEDIA_URL }}{{ event.docs.url }}'>{{ event.docs }}</a>#}</div>
+
+            <a href="{% url 'concrete_event' event.id %}">Перейти на персональную страницу</a></div>
     {% endfor %}
 
 {% endblock %}

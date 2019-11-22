@@ -1,4 +1,4 @@
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, HttpResponseRedirect
 from django.contrib.auth.models import User
 from django.contrib.auth.forms import UserCreationForm
 from .models import *
@@ -10,7 +10,9 @@ def main(request):
 
 
 def event(request, number):
-    return render(request, 'event.html')
+    event = Competition.objects.get(pk=number)
+    addrequestform = AddRequestForm()
+    return render(request, 'event.html', {"event": event, "number": number, 'addrequestform': addrequestform})
 
 
 def new_event(request):
@@ -21,9 +23,15 @@ def new_event(request):
     return render(request, 'new_event.html', {"form": form})
 
 
-def event_list(request):
-    event_list = NewCompetition.objects.all()
-    return render(request, 'event_list.html', {"event_list": event_list})
+def addrequest(request, number):
+    form = AddRequestForm(request.POST or None)
+    if form.is_valid():
+        form.save()
+    return HttpResponseRedirect('event/')
+
+    def event_list(request):
+        event_list = Competition.objects.all()
+        return render(request, 'event_list.html', {"event_list": event_list})
 
 
 # def login(request):
