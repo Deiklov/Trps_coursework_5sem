@@ -11,6 +11,6 @@ urlpatterns = [
     path('instruction', TemplateView.as_view(template_name="instruction.html"), name="instruction"),
     path('search', TemplateView.as_view(template_name="search_template.html"), name="temp_search"),
     path('event_list', views.event_list, name="event_list"),
-    path('add_request/<int:number>', views.request_for_event, name="add_request"),
+    path('add_request/<int:number>', views.addrequest, name="add_request"),
     path('accounts/', include('django.contrib.auth.urls')),
 ]

@@ -29,9 +29,10 @@ def addrequest(request, number):
         form.save()
     return HttpResponseRedirect('event/')
 
-    def event_list(request):
-        event_list = Competition.objects.all()
-        return render(request, 'event_list.html', {"event_list": event_list})
+
+def event_list(request):
+    event_list = Competition.objects.all()
+    return render(request, 'event_list.html', {"event_list": event_list})
 
 
 # def login(request):
