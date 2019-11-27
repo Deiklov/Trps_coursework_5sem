@@ -6,14 +6,19 @@ import datetime
 
 
 class Competition(models.Model):
+    sport_choices = (
+        ('Boxing', 'Бокс'),
+        ('Kickboxing', 'Кикбоксинг')
+    )
     title = models.CharField(max_length=100)
     date = models.DateField(auto_now_add=True)
     place = models.CharField(max_length=255)
     responsible = models.TextField()
     level = models.CharField(max_length=200)
-    sport = models.CharField(max_length=50)
+    sport = models.CharField(max_length=50, choices=sport_choices, default='Бокс')
     description = models.TextField()
     docs = models.FileField(upload_to='docs/', blank=True)
+    users = models.ManyToManyField(User)
 
     def __str__(self):
         return self.title
@@ -21,11 +26,16 @@ class Competition(models.Model):
 
 class AddRequest(models.Model):
     role_choices = (
-        ('Boxing', 'Бокс'),
-        ('Kickboxing', 'Кикбоксинг')
+        ('Doctor', 'Врач'),
+        ('Participant', 'Участник'),
+        ('Coach', 'Тренер'),
+        ('Sponsor', 'Cпонсор')
     )
-    year_in_school = models.CharField(max_length=50, choices=role_choices, default='Бокс')
-    role = models.CharField(max_length=100)
+    role = models.CharField(max_length=100, choices=role_choices, default='Участник')
     weight = models.PositiveSmallIntegerField()
     docs = models.FileField(upload_to='docs/', blank=True)
     competit = models.ForeignKey(Competition, on_delete=models.CASCADE)
+    userid = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, default=2)
+
+    def __str__(self):
+        return self.role + " " + str(self.weight)

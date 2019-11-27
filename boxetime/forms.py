@@ -14,3 +14,4 @@ class AddRequestForm(forms.ModelForm):
         model = AddRequest
         fields = "__all__"
         labels = {"weight": "Вес", "docs": "Персональный документы", "role": "Ваша роль"}
+        widgets = {'competit': forms.HiddenInput()}
