@@ -13,5 +13,6 @@ urlpatterns = [
     path('event_list', views.event_list, name="event_list"),
     path('add_request/', views.addrequest, name="add_request"),
     path('req_handler/<int:req_id>/<int:flag>', views.req_handler, name="req_handler"),
+    path('update_grid/<int:eventid>', views.update_grid, name="update_grid"),
     path('accounts/', include('django.contrib.auth.urls')),
 ]

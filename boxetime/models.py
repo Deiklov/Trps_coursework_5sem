@@ -19,7 +19,6 @@ class Competition(models.Model):
     description = models.TextField(blank=True)
     docs = models.FileField(upload_to='docs/', blank=True, null=True)
     users = models.ManyToManyField(User, blank=True)
-
     def __str__(self):
         return self.title
 

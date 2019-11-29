@@ -19,3 +19,7 @@ body {
 body > .container {
     padding: 20px 15px 0;
 }
+
+form {
+    font-size: 12px;
+}

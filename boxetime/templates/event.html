@@ -14,14 +14,15 @@
         <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#exampleModal">
             Записаться
         </button>
-        <form action="" method="post" class="my-2">
+        <form action="{% url 'update_grid' event.id %}" method="post" class="my-2">
+            {% csrf_token %}
+            {{ grid.management_form }}
             {% for forms in grid %}
                 <div class="form-inline">
                     {{ forms|crispy }}
-                    <input type="submit" class="btn btn-primary" value="Отправить">
                 </div>
             {% endfor %}
-
+            <input type="submit" class="btn btn-primary" value="Commit">
         </form>
         {% for pair in griddb %}
             <div>

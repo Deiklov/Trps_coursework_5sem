@@ -10,13 +10,20 @@ def main(request):
     return render(request, 'index.html', {})
 
 
+def update_grid(request, eventid):
+    GridFormSet = modelformset_factory(CompetitGrid, form=GridForm)
+    formset = GridFormSet(request.POST, queryset=CompetitGrid.objects.filter(competitid=eventid).order_by('weight'))
+    if formset.is_valid():
+        formset.save()
+    return redirect(event, eventid)
+
+
 def event(request, number):
     event = Competition.objects.get(pk=number)
     members = AddRequest.objects.select_related().filter(competit=number, acepted=True)
-    compgrid = modelformset_factory(CompetitGrid, form=GridForm)
-    compgrid = compgrid(queryset=CompetitGrid.objects.filter(competitid=number))
-    # compgrid = GridForm(initial={'competit': number})  # просто создал форму
-    # grid = CompetitGrid.objects.all()
+    GridFormSet = modelformset_factory(CompetitGrid, form=GridForm)
+    compgrid = GridFormSet(initial=[{'competitid': number}],
+                           queryset=CompetitGrid.objects.filter(competitid=number).order_by('weight'))
     addrequests = AddRequest.objects.filter(competit=number, acepted=False)
     addrequestform = AddRequestForm(initial={'competit': number})
     context = {"event": event, "number": number,
