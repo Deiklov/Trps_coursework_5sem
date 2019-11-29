@@ -3,5 +3,5 @@ from .models import *
 from django.contrib.auth.models import User
 
 admin.site.register(Competition)
-# admin.site.register(User)
 admin.site.register(AddRequest)
+admin.site.register(CompetitGrid)

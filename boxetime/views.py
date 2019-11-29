@@ -1,6 +1,7 @@
 from django.shortcuts import render, redirect, HttpResponseRedirect
 from django.contrib.auth.models import User
 from django.contrib.auth.forms import UserCreationForm
+from django.forms import modelformset_factory
 from .models import *
 from .forms import *
 
@@ -11,19 +12,32 @@ def main(request):
 
 def event(request, number):
     event = Competition.objects.get(pk=number)
-    addrequests = AddRequest.objects.filter(competit=number)
+    members = AddRequest.objects.select_related().filter(competit=number, acepted=True)
+    compgrid = modelformset_factory(CompetitGrid, form=GridForm)
+    compgrid = compgrid(queryset=CompetitGrid.objects.filter(competitid=number))
+    # compgrid = GridForm(initial={'competit': number})  # просто создал форму
+    # grid = CompetitGrid.objects.all()
+    addrequests = AddRequest.objects.filter(competit=number, acepted=False)
     addrequestform = AddRequestForm(initial={'competit': number})
-    context = {"event": event, "number": number, 'addrequestform': addrequestform, 'addrequests': addrequests}
+    context = {"event": event, "number": number,
+               'addrequestform': addrequestform, 'addrequests': addrequests,
+               'members': members, 'grid': compgrid}
     return render(request, 'event.html', context=context)
 
 
 def req_handler(request, req_id, flag):
-    addrequest = AddRequest(pk=req_id)
+    addrequest = AddRequest.objects.get(pk=req_id)  # забрали реквест из бд
+    eventid = addrequest.competit.id
     if flag == 1:  # добавляем запись в бд
-    # связать юзера и соревнования и удалить реквест
+        user = User.objects.get(pk=addrequest.userid.id)
+        cometition = Competition.objects.get(pk=eventid)
+        cometition.users.add(user)
+        addrequest.acepted = True
+        cometition.save()
+        addrequest.save()
     elif flag == 0:
-    # удалить реквест
-    return redirect(event, 1)
+        addrequest.delete()
+    return redirect(event, eventid)
 
 
 def new_event(request):
