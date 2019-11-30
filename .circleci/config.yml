@@ -2,7 +2,7 @@ version: 2
 jobs:
   build:
     docker:
-      - image: circleci/python:3.6
+      - image: circleci/python:3.6.8
     steps:
       - checkout
       - restore_cache:
@@ -17,10 +17,16 @@ jobs:
           paths:
             - "venv"
       - run:
+          name: Migrate
+          command: |
+            . venv/bin/activate
+            python3 manage.py migrate
+      - run:
           name: Running tests
           command: |
             . venv/bin/activate
             python3 manage.py test
+
       - store_artifacts:
           path: test-reports/
           destination: python_app
