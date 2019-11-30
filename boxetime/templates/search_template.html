@@ -3,19 +3,25 @@
 {% block content %}
     <p class="h2">Поля для поиска</p>
     <div class="form-group">
-        <label>For data</label>
-        <input type="text" class="form-control">
+        <form class="form-inline mt-2 mt-md-0" action="{% url 'search' %}">
+            <input class="form-control mr-sm-2" type="date" placeholder="Search" value="2019-11-30" name="search_date">
+            <button class="btn btn-outline-success my-2 my-sm-0" type="submit">По дате</button>
+        </form>
     </div>
     <div class="form-group">
-        <label>For region</label>
-        <input type="text" class="form-control">
+        <form class="form-inline mt-2 mt-md-0" action="{% url 'search' %}">
+            <input class="form-control mr-sm-2" type="text" placeholder="Search" name="search_region">
+            <button class="btn btn-outline-success my-2 my-sm-0" type="submit"> По региону</button>
+        </form>
     </div>
     <div class="form-group">
-        <label>For title</label>
-        <input type="text" class="form-control">
+        <form class="form-inline mt-2 mt-md-0" action="{% url 'search' %}">
+            <input class="form-control mr-sm-2" type="text" placeholder="Search" name="search_title">
+            <button class="btn btn-outline-success my-2 my-sm-0" type="submit">По заголовку</button>
+        </form>
     </div>
-    <div class="form-group">
-        <label>Предстоящие и прошедшие</label>
-        <input type="text" class="form-control">
-    </div>
+    {% for event in event_list %}
+        <p>{{ event }}</p>
+    {% endfor %}
+
 {% endblock %}
