@@ -2,7 +2,7 @@ from django.db import models
 from django.contrib.auth.models import User
 from django.db.models.signals import post_save
 from django.dispatch import receiver
-import datetime
+from django.utils import timezone
 
 
 class Competition(models.Model):
@@ -18,7 +18,8 @@ class Competition(models.Model):
     sport = models.CharField(max_length=50, choices=sport_choices, default='Boxing')
     description = models.TextField(blank=True)
     docs = models.FileField(upload_to='docs/', blank=True, null=True)
-    users = models.ManyToManyField(User, blank=True)
+    users = models.ManyToManyField(User, blank=True, related_name='members')
+    author = models.ForeignKey(User, on_delete=models.SET(1), default=1)
 
     def __str__(self):
         return self.title
@@ -65,6 +66,14 @@ class CompetitGrid(models.Model):
 
     def __str__(self):
         return str(self.member1) + " vs " + str(self.member2) + " (" + str(self.weight) + ") " + str(self.competitid)
+
+
+class Profile(models.Model):
+    avatar = models.ImageField(default="default.png", upload_to="images/")
+    user = models.OneToOneField(User, on_delete=models.CASCADE)
+
+    def __str__(self):
+        return self.user.username
 
 
 weight_tuple = (60, 64, 69, 75, 81, 91, 500)

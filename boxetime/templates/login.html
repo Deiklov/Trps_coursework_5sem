@@ -1,0 +1,33 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load crispy_forms_tags %}
+{% block content %}
+    {% if messages %}
+        <ul>
+            {% for message in messages %}
+                <li class="alert alert-danger">{{ message }}</li>
+            {% endfor %}
+        </ul>
+    {% endif %}
+    <form method="post">
+        {% csrf_token %}
+        <fieldset class="form-group">
+            <legend class="border-bottom mb-4">Log in</legend>
+            {{ form|crispy }}
+        </fieldset>
+        {% for error in form.non_field_errors %}
+            <p class="alert-danger alert">{{ error }}</p>
+        {% endfor %}
+        <div class="form-group">
+            <button class="btn btn-outline-info" type="submit">Sign in</button>
+        </div>
+        {% if request.GET.next %}
+            <input type="hidden" name="next" value="{{ request.GET.next }}">
+        {% endif %}
+    </form>
+    <div class="border-top pt-3">
+        <small class="text-muted">
+            Need account ? <a class="ml-2" href="{% url 'signup' %}">Sign up</a>
+        </small>
+    </div>
+{% endblock %}
