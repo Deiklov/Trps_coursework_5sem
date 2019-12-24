@@ -14,35 +14,47 @@
         <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#exampleModal">
             Записаться
         </button>
-        <form action="{% url 'update_grid' event.id %}" method="post" class="my-2">
-            {% csrf_token %}
-            {{ grid.management_form }}
-            {% for forms in grid %}
-                <div class="form-inline">
-                    {{ forms|crispy }}
-                </div>
-            {% endfor %}
-            <input type="submit" class="btn btn-primary" value="Commit">
-        </form>
-        {% for pair in griddb %}
-            <div>
-                {{ pair.member1 }} vs
-                {{ pair.member2 }}
-                <span class="alert-success">{{ pair.memberwin }} </span>
-                weight: {{ pair.weight }}
-                level:{{ pair.levelgrid }}
-            </div>
+    </div>
+    <div class="btn-group" role="group" aria-label="Basic example">
+        {% for weight_category in weight_tuple %}
+            {% if weight_category < 500 %}
+                <a role="button" class="btn btn-secondary mr-1" data-event="{{ event.id }}"
+                   id="weight_{{ weight_category }}"
+                   href="{% url 'concrete_event' event.id %}?weight={{ weight_category }}">{{ weight_category }}</a>
+            {% endif %}
         {% endfor %}
+    </div>
 
-        {% for member in members %}
-            <div class="alert alert-dark">
-                <p> {{ forloop.counter }}
-                    <span> {{ member.userid.username }}</span>
-                    <span> {{ member.weight }}</span>
-                    <span> {{ member.role }}</span>
-                </p>
+
+    <form action="{% url 'update_grid' event.id %}" method="post" class="my-2">
+        {% csrf_token %}
+        {{ grid.management_form }}
+        {% for forms in grid %}
+            <div class="form-inline">
+                {{ forms|crispy }}
             </div>
         {% endfor %}
+        <input type="submit" class="btn btn-primary" value="Commit">
+    </form>
+    {% for pair in griddb %}
+        <div>
+            {{ pair.member1 }} vs
+            {{ pair.member2 }}
+            <span class="alert-success">{{ pair.memberwin }} </span>
+            weight: {{ pair.weight }}
+            level:{{ pair.levelgrid }}
+        </div>
+    {% endfor %}
+
+    {% for member in members %}
+        <div class="alert alert-dark">
+            <p> {{ forloop.counter }}
+                <span> {{ member.userid.username }}</span>
+                <span> {{ member.weight }}</span>
+                <span> {{ member.role }}</span>
+            </p>
+        </div>
+    {% endfor %}
 
     </div>
     {% for addrequest in addrequests %}

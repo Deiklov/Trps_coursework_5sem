@@ -19,6 +19,7 @@ class Competition(models.Model):
     description = models.TextField(blank=True)
     docs = models.FileField(upload_to='docs/', blank=True, null=True)
     users = models.ManyToManyField(User, blank=True)
+
     def __str__(self):
         return self.title
 
@@ -30,12 +31,21 @@ class AddRequest(models.Model):
         ('Coach', 'Тренер'),
         ('Sponsor', 'Cпонсор')
     )
+    ranks = (
+        ('novice', 'Новичок'),
+        ('third', 'Третий разряд'),
+        ('second', 'Второй разряд'),
+        ('first', 'Первый разряд'),
+        ('kms', 'КМС'),
+        ('master', 'Мастер спорта'),
+    )
     role = models.CharField(max_length=100, choices=role_choices, default='Participant')
     weight = models.PositiveSmallIntegerField()
     docs = models.FileField(upload_to='docs/', blank=True)
     competit = models.ForeignKey(Competition, on_delete=models.CASCADE)
     userid = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, default=2)
     acepted = models.BooleanField(default=False)
+    rank = models.CharField(max_length=50, choices=ranks, default='novice')
 
     def __str__(self):
         return str(self.userid) + " " + str(self.weight) + " " + self.role + " " + str(self.competit)
@@ -55,3 +65,6 @@ class CompetitGrid(models.Model):
 
     def __str__(self):
         return str(self.member1) + " vs " + str(self.member2) + " (" + str(self.weight) + ") " + str(self.competitid)
+
+
+weight_tuple = (60, 64, 69, 75, 81, 91, 500)

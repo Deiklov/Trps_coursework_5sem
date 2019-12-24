@@ -1,24 +1,30 @@
 from django.shortcuts import render, redirect, HttpResponseRedirect
 from django.contrib.auth.models import User
 from django.contrib.auth.forms import UserCreationForm
-from django.forms import modelformset_factory
+from django.views.generic import View
 from .models import *
 from .forms import *
+import datetime
+from .utils import *
 
 
-def main(request):
-    return render(request, 'index.html', {})
+class Main(View):
+    template = 'index.html'
+
+    def get(self, request):
+        return render(request, self.template)
 
 
 def update_grid(request, eventid):
-    GridFormSet = modelformset_factory(CompetitGrid, form=GridForm)
     formset = GridFormSet(request.POST, queryset=CompetitGrid.objects.filter(competitid=eventid).order_by('weight'))
-    if formset.is_valid():
-        formset.save()
+    for form in formset:
+        if form.is_valid():
+            form.save()
     return redirect(event, eventid)
 
 
 def search(request):
+    event_list = ''
     search_query = request.GET.get('search_region', None)
     if search_query:
         event_list = Competition.objects.filter(place__icontains=search_query)
@@ -33,16 +39,20 @@ def search(request):
 
 
 def event(request, number):
+    weight = int(request.GET.get('weight', default=75))
     event = Competition.objects.get(pk=number)
+    if (event.date < datetime.date.today()):
+        make_pair(number)
     members = AddRequest.objects.select_related().filter(competit=number, acepted=True)
-    GridFormSet = modelformset_factory(CompetitGrid, form=GridForm)
     compgrid = GridFormSet(initial=[{'competitid': number}],
-                           queryset=CompetitGrid.objects.filter(competitid=number).order_by('weight'))
+                           queryset=CompetitGrid.objects.filter(competitid=number, weight__range=(
+                               weight, weight_tuple[weight_tuple.index(weight) + 1])).order_by(
+                               'weight'))
     addrequests = AddRequest.objects.filter(competit=number, acepted=False)
     addrequestform = AddRequestForm(initial={'competit': number})
     context = {"event": event, "number": number,
                'addrequestform': addrequestform, 'addrequests': addrequests,
-               'members': members, 'grid': compgrid}
+               'members': members, 'grid': compgrid, 'weight_tuple': weight_tuple}
     return render(request, 'event.html', context=context)
 
 

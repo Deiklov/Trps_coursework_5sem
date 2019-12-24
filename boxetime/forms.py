@@ -1,6 +1,6 @@
 from django import forms
 from .models import *
-
+from django.forms import modelformset_factory
 
 class NewCompetitionForm(forms.ModelForm):
     class Meta:
@@ -26,3 +26,6 @@ class GridForm(forms.ModelForm):
         model = CompetitGrid
         fields = "__all__"
         widgets = {'competitid': forms.HiddenInput()}
+
+
+GridFormSet = modelformset_factory(CompetitGrid, form=GridForm)

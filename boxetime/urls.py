@@ -4,7 +4,7 @@ from django.views.generic import TemplateView
 from datetime import *
 
 urlpatterns = [
-    path('', views.main, name="main"),
+    path('', views.Main.as_view(), name="main"),
     path('new_event', views.new_event, name="new_event"),
     path('signup', views.signup, name="signup"),
     path('event/<int:number>', views.event, name="concrete_event"),
