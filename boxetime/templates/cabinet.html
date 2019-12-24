@@ -1,31 +1,13 @@
 {% extends 'base.html' %}
 {% load static %}
+{% load crispy_forms_tags %}
 {% block content %}
-    <p class="h3 mb-4">Settings: Dr. Pepper</p>
-    <form>
-        <div class="form-group row">
-            <label for="login" class="col-2 col-form-label">Login</label>
-            <div class="col-4">
-                <input type="text" class="form-control" id="login" value="dr.pepper">
-            </div>
-        </div>
-        <div class="form-group row">
-            <label for="email" class="col-2 col-form-label">Email</label>
-            <div class="col-4">
-                <input type="email" class="form-control" id="email" value="drpepper@mail.ru">
-            </div>
-        </div>
-        <div class="form-group row">
-            <label for="nick" class="col-2 col-form-label">Nickname</label>
-            <div class="col-4">
-                <input type="text" class="form-control" id="nick" value="Andrey">
-            </div>
-        </div>
-        <div class="form-group row">
-            <label for="avatar" class="col-2 col-form-label">Upload avatar</label>
-            <div class="col-4">
-                <input type="file" class="file-upload" id="avatar" value="Andrey">
-            </div>
-        </div>
+    <p class="h3 mb-4">{{ user.username }}</p>
+    <img class="rounded-circle account-img" src="{{ user.profile.avatar.url }}" width=100 height=100>
+    <form method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        {{ user_form|crispy }}
+        {{ profile_form|crispy }}
+        <button class="btn btn-primary" type="submit">Change user</button>
     </form>
 {% endblock %}
