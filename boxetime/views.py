@@ -27,6 +27,20 @@ def update_grid(request, eventid):
     return redirect(event, eventid)
 
 
+def search(request):
+    search_query = request.GET.get('search_region', None)
+    if search_query:
+        event_list = Competition.objects.filter(place__icontains=search_query)
+    search_query = request.GET.get('search_title', None)
+    if search_query:
+        event_list = Competition.objects.filter(title__icontains=search_query)
+    search_query = request.GET.get('search_date', None)
+    if search_query:
+        date = datetime.datetime.strptime(search_query, "%Y-%m-%d")
+        event_list = Competition.objects.filter(date__lte=date)
+    return render(request, 'search_template.html', {'event_list': event_list})
+
+
 def event(request, number):
     event = Competition.objects.get(pk=number)
     members = AddRequest.objects.select_related().filter(competit=number, acepted=True)

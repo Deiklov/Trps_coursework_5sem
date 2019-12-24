@@ -1,6 +1,7 @@
 from django.urls import path
 from . import views
 from django.views.generic import TemplateView
+from datetime import *
 
 urlpatterns = [
     path('', views.main, name="main"),
@@ -10,7 +11,6 @@ urlpatterns = [
     path('profile/edit', views.cabinet, name="cabinet"),
     path('login', views.login_view, name="login"),
     path('instruction', TemplateView.as_view(template_name="instruction.html"), name="instruction"),
-    path('search', TemplateView.as_view(template_name="search_template.html"), name="temp_search"),
     path('event_list', views.event_list, name="event_list"),
     path('add_request/', views.addrequest, name="add_request"),
     path('logout', views.logout_view, name="logout"),
