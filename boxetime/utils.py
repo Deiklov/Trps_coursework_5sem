@@ -62,8 +62,8 @@ def check_level(compid, levelid, weight):
 
 def check_all_level(compid):
     i = 0
-    while i < len(weight_tuple):
-        particip =
+    # while i < len(weight_tuple):
+    #     particip =
 
 
 # учитываем вес тк на разные веса разное кол-во уровней

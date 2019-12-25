@@ -3,6 +3,7 @@ from .models import *
 from django.forms import modelformset_factory
 from django.contrib.auth.forms import UserCreationForm, UserChangeForm
 
+
 class NewCompetitionForm(forms.ModelForm):
     class Meta:
         model = Competition
@@ -13,9 +14,13 @@ class NewCompetitionForm(forms.ModelForm):
 class AddRequestForm(forms.ModelForm):
     class Meta:
         model = AddRequest
-        fields = "__all__"
+        exclude = ('userid', 'acepted', 'competit')
         labels = {"weight": "Вес", "docs": "Персональный документы", "role": "Ваша роль"}
-        widgets = {'competit': forms.HiddenInput()}
+
+    def __init__(self, number, user, *args, **kwargs):
+        super(AddRequestForm, self).__init__(*args, **kwargs)
+        self.competit = number
+        self.userid = user
 
 
 class GridForm(forms.ModelForm):

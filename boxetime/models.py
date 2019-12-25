@@ -44,7 +44,7 @@ class AddRequest(models.Model):
     weight = models.PositiveSmallIntegerField()
     docs = models.FileField(upload_to='docs/', blank=True)
     competit = models.ForeignKey(Competition, on_delete=models.CASCADE)
-    userid = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, default=2)
+    userid = models.ForeignKey(User, on_delete=models.SET(1), default=1)
     acepted = models.BooleanField(default=False)
     rank = models.CharField(max_length=50, choices=ranks, default='novice')
 

@@ -4,10 +4,8 @@ from django.contrib.auth.forms import UserCreationForm
 from django.views.generic import View
 from .models import *
 from django.shortcuts import redirect
-from django.contrib.auth.forms import *
 from django.contrib.auth.decorators import *
 from django.contrib.auth import *
-import re
 from .forms import *
 from django.http import Http404
 from django.contrib import messages
@@ -15,6 +13,7 @@ from django.contrib.auth.decorators import user_passes_test
 from django.forms import modelformset_factory
 from django.views.generic.edit import FormView
 from django.views.generic.base import TemplateView
+import datetime
 
 
 class Main(View):
@@ -50,15 +49,15 @@ def search(request):
 def event(request, number):
     weight = int(request.GET.get('weight', default=75))
     event = Competition.objects.get(pk=number)
-    if (event.date < datetime.date.today()):
-        make_pair(number)
+    # if (event.date < datetime.date.today()):
+    #     make_pair(number)
     members = AddRequest.objects.select_related().filter(competit=number, acepted=True)
     compgrid = GridFormSet(initial=[{'competitid': number}],
                            queryset=CompetitGrid.objects.filter(competitid=number, weight__range=(
                                weight, weight_tuple[weight_tuple.index(weight) + 1])).order_by(
                                'weight'))
     addrequests = AddRequest.objects.filter(competit=number, acepted=False)
-    addrequestform = AddRequestForm(initial={'competit': number})
+    addrequestform = AddRequestForm(number, request.user)
     context = {"event": event, "number": number,
                'addrequestform': addrequestform, 'addrequests': addrequests,
                'members': members, 'grid': compgrid, 'weight_tuple': weight_tuple}
@@ -97,18 +96,11 @@ class EventView(TemplateView):
             return redirect("/")
 
 
-# class EventView(FormView):
-#     template_name = 'new_event.html'
-#     form_class = NewCompetitionForm
-#     success_url = 'event/1'
-
-
-def addrequest(request):
-    form = AddRequestForm(request.POST or None)
+def addrequest(request, number):
+    form = AddRequestForm(number, request.user, request.POST)
     if form.is_valid():
-        form.save(commit=True)
-    event_number = form.cleaned_data['competit'].id
-    return redirect(event, event_number)
+        form.save()
+    return redirect(event, number)
 
 
 def event_list(request):

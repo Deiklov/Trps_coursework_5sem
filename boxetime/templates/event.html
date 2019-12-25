@@ -56,7 +56,6 @@
         </div>
     {% endfor %}
 
-    </div>
     {% for addrequest in addrequests %}
         <div class="border">
             <p>{{ addrequest.role }}</p>
@@ -79,13 +78,9 @@
                     </button>
                 </div>
                 <div class="modal-body">
-                    <form action="{% url "add_request" %}" id="addform" method="post" novalidate>
+                    <form action="{% url "add_request" event.id %}" id="addform" method="post">
                         {% csrf_token %}
-                        {{ addrequestform.competit }}
-                        {{ addrequestform.docs }}
-                        {{ addrequestform.role }}
-                        {{ addrequestform.weight }}
-                        {{ addrequestform.userid }}
+                        {{ addrequestform|crispy }}
                     </form>
                 </div>
                 <div class="modal-footer">
