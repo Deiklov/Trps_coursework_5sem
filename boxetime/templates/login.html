@@ -15,9 +15,6 @@
             <legend class="border-bottom mb-4">Log in</legend>
             {{ form|crispy }}
         </fieldset>
-        {% for error in form.non_field_errors %}
-            <p class="alert-danger alert">{{ error }}</p>
-        {% endfor %}
         <div class="form-group">
             <button class="btn btn-outline-info" type="submit">Sign in</button>
         </div>

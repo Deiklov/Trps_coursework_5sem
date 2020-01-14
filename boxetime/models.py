@@ -40,8 +40,12 @@ class AddRequest(models.Model):
         ('kms', 'КМС'),
         ('master', 'Мастер спорта'),
     )
+    weight_choice = (
+        (60, '[0,60)'), (64, '[60;64)'), (69, '[64,69)'), (75, '[69,75)'), (81, '[75,81)'), (91, '[81,91)'),
+        (500, '[91+)'),
+    )
     role = models.CharField(max_length=100, choices=role_choices, default='Participant')
-    weight = models.PositiveSmallIntegerField()
+    weight = models.PositiveSmallIntegerField(choices=weight_choice, default=75)
     docs = models.FileField(upload_to='docs/', blank=True)
     competit = models.ForeignKey(Competition, on_delete=models.CASCADE)
     userid = models.ForeignKey(User, on_delete=models.SET(1), default=1)

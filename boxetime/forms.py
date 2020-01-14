@@ -15,11 +15,10 @@ class AddRequestForm(forms.ModelForm):
     class Meta:
         model = AddRequest
         exclude = ('userid', 'acepted', 'competit')
-        labels = {"weight": "Вес", "docs": "Персональный документы", "role": "Ваша роль"}
+        labels = {"weight": "Вес", "docs": "Персональный документы", "role": "Ваша роль", "rank": 'Разряд'}
 
-    def __init__(self, number, user, *args, **kwargs):
+    def __init__(self, user, *args, **kwargs):
         super(AddRequestForm, self).__init__(*args, **kwargs)
-        self.competit = number
         self.userid = user
 
 

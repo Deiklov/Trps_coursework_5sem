@@ -2,7 +2,7 @@
 {% load static %}
 {% load crispy_forms_tags %}
 {% block content %}
-    <p class="h2">Результаты соревнования №{{ number }}</p>
+    <p class="h2">Результаты соревнования № {{ event.id }}</p>
     <div class="border border-dark my-2 pl-2">
         <p>Название {{ event.title }}</p>
         <p>Дата {{ event.date }}</p>
@@ -55,7 +55,6 @@
             </p>
         </div>
     {% endfor %}
-
     {% for addrequest in addrequests %}
         <div class="border">
             <p>{{ addrequest.role }}</p>
