@@ -17,10 +17,6 @@ class AddRequestForm(forms.ModelForm):
         exclude = ('userid', 'acepted', 'competit')
         labels = {"weight": "Вес", "docs": "Персональный документы", "role": "Ваша роль", "rank": 'Разряд'}
 
-    def __init__(self, user, *args, **kwargs):
-        super(AddRequestForm, self).__init__(*args, **kwargs)
-        self.userid = user
-
 
 class GridForm(forms.ModelForm):
     member1 = forms.ModelChoiceField(queryset=User.objects.all())

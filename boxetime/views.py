@@ -7,6 +7,7 @@ from django.shortcuts import redirect
 from django.contrib.auth.decorators import *
 from django.contrib.auth import *
 from .forms import *
+from .models import *
 from django.http import Http404
 from django.contrib import messages
 from django.contrib.auth.decorators import user_passes_test
@@ -47,7 +48,7 @@ class SearchView(ListView):
             return Competition.objects.filter(date__lte=date)
 
 
-class EventViewDetail(DetailView):
+class EventViewDetail(DetailView):  # основная страница соревнования
     template_name = 'event.html'
     model = Competition
     pk_url_kwarg = 'eventid'
@@ -55,10 +56,12 @@ class EventViewDetail(DetailView):
 
     def get_context_data(self, **kwargs):
         context = super(EventViewDetail, self).get_context_data(**kwargs)
-        context['members'] = AddRequest.objects.select_related().filter(competit=kwargs.get(self.pk_url_kwarg),
-                                                                        acepted=True)
-        context['addrequests'] = AddRequest.objects.filter(competit=kwargs.get(self.pk_url_kwarg), acepted=False)
-        context['addrequestform'] = AddRequestForm(kwargs.get(self.pk_url_kwarg), self.request.user)
+        weight = self.request.GET.get('weight', 75)
+        context['members'] = AddRequest.objects.select_related().filter(competit=context['object'].id,
+                                                                        acepted=True, weight=weight)
+        context['weight_tuple'] = weight_tuple
+        context['addrequests'] = AddRequest.objects.filter(competit=context['object'].id, acepted=False)
+        context['addrequestform'] = AddRequestForm()
         return context
 
     # def event(request, number):
@@ -79,21 +82,7 @@ class EventViewDetail(DetailView):
     #     return render(request, 'event.html', context=context)
 
 
-# def req_handler(request, req_id, flag):
-#     addrequest = AddRequest.objects.get(pk=req_id)  # забрали реквест из бд
-#     eventid = addrequest.competit.id
-#     if flag == 1:  # добавляем запись в бд
-#         user = User.objects.get(pk=addrequest.userid.id)
-#         cometition = Competition.objects.get(pk=eventid)
-#         cometition.users.add(user)
-#         addrequest.acepted = True
-#         cometition.save()
-#         addrequest.save()
-#     elif flag == 0:
-#         addrequest.delete()
-#     return redirect(event, eventid)
-
-
+# новый евент
 class EventView(TemplateView):
     template_name = 'new_event.html'
 
@@ -111,6 +100,7 @@ class EventView(TemplateView):
             return redirect("/")
 
 
+# добавить заявку
 class AddRequestView(RedirectView):
     def get_redirect_url(self, *args, **kwargs):
         if 'next' in self.request.GET:
@@ -118,30 +108,50 @@ class AddRequestView(RedirectView):
         return str('/event/%d' % kwargs.get('eventid'))
 
     def get(self, request, *args, **kwargs):
-        form = AddRequestForm(self.request.user, request.POST)
+        form = AddRequestForm(request.POST)
         if form.is_valid():
-            form.save(commit=False)
-            form.competit = Competition.objects.get(pk=kwargs.get('eventid'))
-            form.save()
+            AddRequest.objects.save(form.cleaned_data, request.user, **kwargs)
         return super().get(request, *args, **kwargs)
 
 
-# def addrequest(request, number):
-#     # competit = Competition.objects.get(pk=number)
-#     form = AddRequestForm(number, request.user, request.POST)
-#     if form.is_valid():
-#         ff = form.save(commit=False)
-#         ff.competit = Competition.objects.get(pk=number)
-#         ff.save()
-#     return redirect(event, number)
+# accept or reject request
+class AddMemberHandler(RedirectView):
+    def get_redirect_url(self, *args, **kwargs):
+        return str('/event/%d' % kwargs['event_id'])
+
+    def get(self, request, *args, **kwargs):
+        acept = kwargs['flag']
+        req_id = kwargs['req_id']
+        addrequest = AddRequest.objects.get(pk=req_id)
+        if acept == 1:
+            addrequest.acepted = True
+            addrequest.save()
+        elif acept == 0:
+            addrequest.delete()
+        return super().get(request, *args, **kwargs)
+    # def req_handler(request, req_id, flag):
+    #     addrequest = AddRequest.objects.get(pk=req_id)  # забрали реквест из бд
+    #     eventid = addrequest.competit.id
+    #     if flag == 1:  # добавляем запись в бд
+    #         user = User.objects.get(pk=addrequest.userid.id)
+    #         cometition = Competition.objects.get(pk=eventid)
+    #         cometition.users.add(user)
+    #         addrequest.acepted = True
+    #         cometition.save()
+    #         addrequest.save()
+    #     elif flag == 0:
+    #         addrequest.delete()
+    #     return redirect(event, eventid)
 
 
+# список всех евентов
 class EventListView(ListView):
     template_name = "event_list.html"
     model = Competition
     context_object_name = "event_list"
 
 
+# ниже регистрация login logout update_form
 @user_passes_test(lambda u: u.is_anonymous, login_url="/")
 def signup(request):
     profileform = ProfileUpdateForm()

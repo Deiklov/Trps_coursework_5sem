@@ -25,6 +25,16 @@ class Competition(models.Model):
         return self.title
 
 
+class AddRequestManager(models.Manager):
+    def save(self, objects_list, user, **kwargs):
+        if not AddRequest.objects.filter(userid=user, competit_id=kwargs.get('eventid')).exists():
+            q = self.create(role=objects_list['role'],
+                            weight=objects_list['weight'],
+                            competit_id=kwargs.get('eventid'),
+                            userid=user,
+                            rank=objects_list['rank'])
+
+
 class AddRequest(models.Model):
     role_choices = (
         ('Doctor', 'Врач'),
@@ -51,6 +61,7 @@ class AddRequest(models.Model):
     userid = models.ForeignKey(User, on_delete=models.SET(1), default=1)
     acepted = models.BooleanField(default=False)
     rank = models.CharField(max_length=50, choices=ranks, default='novice')
+    objects = AddRequestManager()
 
     def __str__(self):
         return str(self.userid) + " " + str(self.weight) + " " + self.role + " " + str(self.competit)
