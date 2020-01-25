@@ -60,8 +60,9 @@
             <p>{{ addrequest.role }}</p>
             <p>{{ addrequest.weight }}</p>
             <p>{{ addrequest.userid }}</p>
-            <a class="btn btn-primary" href="{% url 'req_handler' addrequest.id 1 %}" role="button">Accept</a>
-            <a class="btn btn-secondary" href="{% url 'req_handler' addrequest.id 0 %}" role="button">Reject</a>
+            <a class="btn btn-primary" href="{% url 'req_handler' addrequest.id 1 event.id %}" role="button">Accept</a>
+            <a class="btn btn-secondary" href="{% url 'req_handler' addrequest.id 0 event.id %}"
+               role="button">Reject</a>
         </div>
     {% endfor %}
 
