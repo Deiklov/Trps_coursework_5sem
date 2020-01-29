@@ -14,46 +14,48 @@ ranks = (
 
 # делает начальную разбивку всех весов ставя каждому свой уровень
 def make_pair(eventid):
-    participant = AddRequest.objects.filter(competit=eventid, acepted=True)
+    participant = AddRequest.objects.filter(competit=eventid, acepted=True)  # выбрали всех участников
     i = 0
     # check all level in weight if true when secondary_splitting
     while i < len(weight_tuple):  # for first split
-        people = participant.filter(weight__range=[weight_tuple[i], weight_tuple[i + 1]]).order_by(
+        people = participant.filter(weight__range=[weight_tuple[i], weight_tuple[i + 1] - 1]).order_by(
             "-rank")  # список участников в этом весе
         n = people.count()
-        j = math.floor(math.log(n, 2))
-        count_pair_binary = 2 ** (j - 1)  # те кто уложился в степень двойки
-        extra_people = 2 ** (j + 1) - n  # те кто проходят изи в следующий тур
-        extra_pair = (n - extra_people - count_pair_binary * 2) / 2  # те кто выше двойки но дерутся за след тур
+        if n == 0:
+            i += 1
+            continue
+        j = math.floor(math.log(n, 2))  # floor степень для участников, example 50->2^5, j=5
+        jbig = math.ceil(math.log(n, 2))
+        pair_count = n - j
+        free_people = jbig - n
         j = 0
-        while j < count_pair_binary + extra_pair:
-            compgrid = CompetitGrid()
-            compgrid.member1 = people[j]
-            compgrid.member2 = people[j + 1]
-            compgrid.weight = weight_tuple[i]
-            compgrid.competitid = eventid
-            compgrid.levelgrid = int(math.sqrt(count_pair_binary) * 2)  # стпень показывающая
-            compgrid.save()
-            j += 2
+        while j < pair_count * 2:
+            member1 = people[j].userid
+            member2 = people[j + 1].userid
+            weight = weight_tuple[i]
+            competitid = eventid
+            levelgrid = math.ceil(math.sqrt(math.log(n, 2)))  # логарифм числа участников
+            CompetitGrid.objects.create(member1=member1, member2=member2, memberwin=None, weight=weight,
+                                        competitid_id=competitid, levelgrid=levelgrid)
+            j += 2  # перескочили через противника
         j = 0
-        while j < extra_people:
-            compgrid = CompetitGrid()
-            compgrid.member1 = people[j]
-            compgrid.member2 = people[j]
-            compgrid.memberwin = people[j]  # сам же выиграл
-            compgrid.weight = weight_tuple[i]
-            compgrid.competitid = eventid
-            compgrid.levelgrid = int(math.sqrt(count_pair_binary) * 2)  # стпень показывающая
-            compgrid.save()
+        while j < free_people:  # сделали экстра пары(онли при первом этапе)
+            member1 = people[j].userid
+            member2 = people[j].userid
+            memberwin = people[j].userid  # сам же выиграл
+            weight = weight_tuple[i]
+            competitid = eventid
+            levelgrid = math.ceil(math.sqrt(math.log(n, 2)))  # логарифм числа участников
+            CompetitGrid.objects.create(member1=member1, member2=member2, memberwin=memberwin, weight=weight,
+                                        competitid_id=competitid, levelgrid=levelgrid)
             j += 1
+        i += 1
 
 
 def check_level(compid, levelid, weight):
-    participant = CompetitGrid.objects.filter(competitid=compid,
-                                              levelgrid=levelid,
-                                              weight=weight)  # можно игнорить вес, запустим только если все провели бои
+    participant = CompetitGrid.objects.filter(competitid=compid, levelgrid=levelid, weight=weight)
     for member in participant:
-        if not member.memberwin:
+        if not member.memberwin:  # чекаем, заполнены ли победители
             break
     else:
         return True  # вернет True если прошел весь цикл
@@ -62,8 +64,14 @@ def check_level(compid, levelid, weight):
 
 def check_all_level(compid):
     i = 0
-    # while i < len(weight_tuple):
-    #     particip =
+    while i < len(weight_tuple):
+        particip = CompetitGrid.objects.filter(competitid=compid, weight=weight_tuple[i])
+        level = math.ceil(math.sqrt(math.log(particip, 2)))  # глубочайших левел
+        while level >= 1:
+            if check_level(compid, level, weight_tuple[i]):
+                level -= 1
+            else:
+                secondary_splitting(compid, level, weight_tuple[i])
 
 
 # учитываем вес тк на разные веса разное кол-во уровней

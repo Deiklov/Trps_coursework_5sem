@@ -64,7 +64,7 @@ class AddRequest(models.Model):
     objects = AddRequestManager()
 
     def __str__(self):
-        return str(self.userid) + " " + str(self.weight) + " " + self.role + " " + str(self.competit)
+        return str(self.userid) + " " + "max " + str(self.weight) + ")" + " " + self.role + " " + str(self.competit)
 
 
 class CompetitGrid(models.Model):

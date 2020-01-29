@@ -59,7 +59,7 @@ class EventViewDetail(DetailView):  # основная страница соре
         context = super(EventViewDetail, self).get_context_data(**kwargs)
         weight = self.request.GET.get('weight', 75)
         eventid = kwargs.get('object').id
-        if Competition.objects.get(pk=eventid).date > timezone.now().date():
+        if Competition.objects.get(pk=eventid).date < timezone.now().date():
             make_pair(eventid)
         context['members'] = AddRequest.objects.select_related().filter(competit=context['object'].id,
                                                                         acepted=True, weight=weight)
