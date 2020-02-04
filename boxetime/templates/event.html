@@ -6,35 +6,43 @@
     <div class="border border-dark my-2 pl-2">
         <p>Название {{ event.title }}</p>
         <p>Дата {{ event.date }}</p>
+        <p>Автор {{ event.author }}</p>
         <p>Место {{ event.place }}</p>
         <p>Уровень {{ event.level }}</p>
         <p>Описание {{ event.description }}</p>
         <p>Спорт {{ event.sport }}</p>
         <p>Ответственные {{ event.responsible }}</p>
-        <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#exampleModal">
-            Записаться
-        </button>
+        {% if not is_written %}
+            <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#exampleModal">
+                Записаться
+            </button>
+        {% endif %}
     </div>
     <div class="btn-group" role="group" aria-label="Basic example">
         {% for weight_category in weight_tuple %}
             {% if weight_category < 500 %}
                 <a role="button" class="btn btn-secondary mr-1" data-event="{{ event.id }}"
                    id="weight_{{ weight_category }}"
-                   href="{% url 'concrete_event' event.id %}?weight={{ weight_category }}">{{ weight_category }}</a>
+                   href="{% url 'concrete_event' event.id %}?weight={{ weight_category }}#members">{{ weight_category }}</a>
             {% endif %}
         {% endfor %}
     </div>
-
-
-    <form action="{% url 'update_grid' event.id %}" method="post" class="my-2">
+    <a name="members"></a>
+    <form action="{% url 'update_grid' event.id %}" method="post" class="m-2 p-2 border border-dark">
         {% csrf_token %}
         {{ grid.management_form }}
         {% for forms in grid %}
-            <div class="form-inline">
-                {{ forms|crispy }}
+            <div class="form-inline my-2">
+                {{ forms.member1|as_crispy_field }}
+                {{ forms.member2|as_crispy_field  }}
+                {{ forms.memberwin|as_crispy_field  }}
+                {{ forms.weight|as_crispy_field  }}
+                {{ forms.levelgrid }}
             </div>
         {% endfor %}
-        <input type="submit" class="btn btn-primary" value="Commit">
+        {% if user.username == author %}
+            <input type="submit" class="btn btn-primary" value="Commit">
+        {% endif %}
     </form>
     {% for pair in griddb %}
         <div>
@@ -60,9 +68,12 @@
             <p>{{ addrequest.role }}</p>
             <p>{{ addrequest.weight }}</p>
             <p>{{ addrequest.userid }}</p>
-            <a class="btn btn-primary" href="{% url 'req_handler' addrequest.id 1 event.id %}" role="button">Accept</a>
-            <a class="btn btn-secondary" href="{% url 'req_handler' addrequest.id 0 event.id %}"
-               role="button">Reject</a>
+            {% if user.username == author %}
+                <a class="btn btn-primary" href="{% url 'req_handler' addrequest.id 1 event.id %}"
+                   role="button">Accept</a>
+                <a class="btn btn-secondary" href="{% url 'req_handler' addrequest.id 0 event.id %}"
+                   role="button">Reject</a>
+            {% endif %}
         </div>
     {% endfor %}
 

@@ -2,6 +2,8 @@ from django import forms
 from .models import *
 from django.forms import modelformset_factory
 from django.contrib.auth.forms import UserCreationForm, UserChangeForm
+from django.db.models import Q
+from django.forms import BaseModelFormSet
 
 
 class NewCompetitionForm(forms.ModelForm):
@@ -17,19 +19,53 @@ class AddRequestForm(forms.ModelForm):
         exclude = ('userid', 'acepted', 'competit')
         labels = {"weight": "Вес", "docs": "Персональный документы", "role": "Ваша роль", "rank": 'Разряд'}
 
+    def clean(self):
+        cleaned_data = super(AddRequestForm, self).clean()
+        role = self.cleaned_data.get('role')
+        if role != 'Participant':
+            self.cleaned_data['weight'] = None
+            self.cleaned_data['rank'] = None
+        else:
+            if self.cleaned_data.get('rank') == None or self.cleaned_data.get('weight') == None:
+                raise forms.ValidationError("Обязательное поле")
+        return self.cleaned_data
+
 
 class GridForm(forms.ModelForm):
-    member1 = forms.ModelChoiceField(queryset=User.objects.all())
-    member2 = forms.ModelChoiceField(queryset=User.objects.all())
-    memberwin = forms.ModelChoiceField(queryset=User.objects.all())
+    member1 = forms.ModelChoiceField(queryset=User.objects.all(), empty_label=None, label='Красный',
+                                     widget=forms.Select(attrs={'readonly': 'readonly'}))
+    member2 = forms.ModelChoiceField(queryset=User.objects.all(), empty_label=None, label='Синий',
+                                     widget=forms.Select(attrs={'readonly': 'readonly'}))
+    memberwin = forms.ModelChoiceField(queryset=User.objects.all(), label='Победитель', empty_label=None)
 
     class Meta:
         model = CompetitGrid
         fields = "__all__"
-        widgets = {'competitid': forms.HiddenInput()}
+        labels = {
+            "levelgrid": "Уровень сетки",
+            "weight": "Вес"
+        }
+        widgets = {'competitid': forms.HiddenInput(),
+                   'levelgrid': forms.TextInput(attrs={'readonly': 'readonly', 'size': '2'}),
+                   'weight': forms.TextInput(attrs={'readonly': 'readonly', 'size': '2'})}
 
+    def clean(self):
+        cleaned_data = super(GridForm, self).clean()
+        member1 = self.cleaned_data.get('member1')
+        member2 = self.cleaned_data.get('member2')
+        memberwin = self.cleaned_data.get('memberwin')
+        if memberwin != member1 and memberwin != member2:
+            raise forms.ValidationError("Победитель должен быть одним из участников")
+        return cleaned_data
 
-GridFormSet = modelformset_factory(CompetitGrid, form=GridForm)
+    def __init__(self, *args, eventid, weight, **kwargs):
+        if isinstance(eventid, int):
+            alluserfromevent = AddRequest.objects.filter(competit_id=eventid, weight=weight).values(
+                'userid_id').distinct()
+            self.base_fields['member1'].queryset = User.objects.filter(id__in=alluserfromevent)
+            self.base_fields['member2'].queryset = User.objects.filter(id__in=alluserfromevent)
+            self.base_fields['memberwin'].queryset = User.objects.filter(id__in=alluserfromevent)
+        super().__init__(*args, **kwargs)
 
 
 class LoginForm(forms.Form):
@@ -72,3 +108,6 @@ class ProfileUpdateForm(forms.ModelForm):
     class Meta:
         model = Profile
         fields = ['avatar']
+
+
+GridFormSet = modelformset_factory(model=CompetitGrid, form=GridForm, extra=0)

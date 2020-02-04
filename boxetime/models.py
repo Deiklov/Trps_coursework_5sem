@@ -55,12 +55,12 @@ class AddRequest(models.Model):
         (500, '[91+)'),
     )
     role = models.CharField(max_length=100, choices=role_choices, default='Participant')
-    weight = models.PositiveSmallIntegerField(choices=weight_choice, default=75)
+    weight = models.PositiveSmallIntegerField(choices=weight_choice, default=75, blank=True, null=True)
     docs = models.FileField(upload_to='docs/', blank=True)
     competit = models.ForeignKey(Competition, on_delete=models.CASCADE)
     userid = models.ForeignKey(User, on_delete=models.SET(1), default=1)
     acepted = models.BooleanField(default=False)
-    rank = models.CharField(max_length=50, choices=ranks, default='novice')
+    rank = models.CharField(max_length=50, choices=ranks, default='novice', blank=True, null=True)
     objects = AddRequestManager()
 
     def __str__(self):

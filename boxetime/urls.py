@@ -15,6 +15,6 @@ urlpatterns = [
     path('add_request/<int:eventid>', views.AddRequestView.as_view(), name="add_request"),
     path('logout', views.LogoutView.as_view(), name="logout"),
     path('req_handler/<int:req_id>/<int:flag>/<int:event_id>', views.AddMemberHandler.as_view(), name="req_handler"),
-    path('update_grid/<int:eventid>', views.cabinet, name="update_grid"),
-    path('search', views.SearchView.as_view(), name="search")
+    path('update_grid/<int:eventid>', views.ChangeGrid.as_view(), name="update_grid"),
+    path('search', views.SearchView.as_view(), name="search"),
 ]

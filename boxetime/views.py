@@ -13,6 +13,7 @@ from django.http import Http404
 from django.contrib import messages
 from django.contrib.auth.decorators import user_passes_test
 from django.forms import modelformset_factory
+from django.forms import formset_factory
 from django.views.generic.edit import *
 from django.views.generic.base import *
 from django.views.generic.list import *
@@ -22,14 +23,6 @@ import datetime
 
 class Main(TemplateView):
     template_name = 'index.html'
-
-
-# def update_grid(request, eventid):
-#     formset = GridFormSet(request.POST, queryset=CompetitGrid.objects.filter(competitid=eventid).order_by('weight'))
-#     for form in formset:
-#         if form.is_valid():
-#             form.save()
-#     return redirect(event, eventid)
 
 
 class SearchView(ListView):
@@ -63,27 +56,28 @@ class EventViewDetail(DetailView):  # основная страница соре
             make_pair(eventid)
         context['members'] = AddRequest.objects.select_related().filter(competit=context['object'].id,
                                                                         acepted=True, weight=weight)
+        if not self.request.user.is_anonymous:
+            context['is_written'] = AddRequest.objects.filter(competit_id=eventid, userid_id=self.request.user)
+        context['author'] = Competition.objects.get(pk=eventid).author.username
+        context['grid'] = GridFormSet(form_kwargs={'eventid': eventid, 'weight': weight},
+                              queryset=CompetitGrid.objects.filter(competitid=eventid, weight=weight).order_by(
+                                  "levelgrid"))
         context['weight_tuple'] = weight_tuple
         context['addrequests'] = AddRequest.objects.filter(competit=context['object'].id, acepted=False)
         context['addrequestform'] = AddRequestForm()
         return context
 
-    # def event(request, number):
-    #     weight = int(request.GET.get('weight', default=75))
-    #     event = Competition.objects.get(pk=number)
-    #     # if (event.date < datetime.date.today()):
-    #     #     make_pair(number)
-    #     members = AddRequest.objects.select_related().filter(competit=number, acepted=True)
-    #     compgrid = GridFormSet(initial=[{'competitid': number}],
-    #                            queryset=CompetitGrid.objects.filter(competitid=number, weight__range=(
-    #                                weight, weight_tuple[weight_tuple.index(weight) + 1])).order_by(
-    #                                'weight'))
-    #     addrequests = AddRequest.objects.filter(competit=number, acepted=False)
-    #     addrequestform = AddRequestForm(number, request.user)
-    #     context = {"event": event, "number": number,
-    #                'addrequestform': addrequestform, 'addrequests': addrequests,
-    #                'members': members, 'grid': compgrid, 'weight_tuple': weight_tuple}
-    #     return render(request, 'event.html', context=context)
+
+class ChangeGrid(RedirectView):
+    def get(self, request, *args, **kwargs):
+        forms = GridFormSet(request.POST)
+        for form in forms:
+            if form.is_valid():
+                form.save()
+        return super().get(request, *args, **kwargs)
+
+    def get_redirect_url(self, *args, **kwargs):
+        return str('/event/%d' % kwargs.get('eventid'))
 
 
 # новый евент
@@ -133,19 +127,6 @@ class AddMemberHandler(RedirectView):
         elif acept == 0:
             addrequest.delete()
         return super().get(request, *args, **kwargs)
-    # def req_handler(request, req_id, flag):
-    #     addrequest = AddRequest.objects.get(pk=req_id)  # забрали реквест из бд
-    #     eventid = addrequest.competit.id
-    #     if flag == 1:  # добавляем запись в бд
-    #         user = User.objects.get(pk=addrequest.userid.id)
-    #         cometition = Competition.objects.get(pk=eventid)
-    #         cometition.users.add(user)
-    #         addrequest.acepted = True
-    #         cometition.save()
-    #         addrequest.save()
-    #     elif flag == 0:
-    #         addrequest.delete()
-    #     return redirect(event, eventid)
 
 
 # список всех евентов
