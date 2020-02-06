@@ -4,18 +4,24 @@
 {% block content %}
     <p class="h2">Результаты соревнования № {{ event.id }}</p>
     <div class="border border-dark my-2 pl-2">
-        <p>Название {{ event.title }}</p>
-        <p>Дата {{ event.date }}</p>
-        <p>Автор {{ event.author }}</p>
-        <p>Место {{ event.place }}</p>
-        <p>Уровень {{ event.level }}</p>
-        <p>Описание {{ event.description }}</p>
-        <p>Спорт {{ event.sport }}</p>
-        <p>Ответственные {{ event.responsible }}</p>
+        <p><strong>Название</strong> {{ event.title }}</p>
+        <p><strong>Дата</strong> {{ event.date }}</p>
+        <p><strong>Автор</strong> {{ event.author }}</p>
+        <p><strong>Место</strong> {{ event.place }}</p>
+        <p><strong>Уровень</strong> {{ event.level }}</p>
+        <p><strong>Описание</strong> {{ event.description }}</p>
+        <p><strong>Спорт</strong> {{ event.sport }}</p>
+        <p><strong>Ответственные</strong> {{ event.responsible }}</p>
+        {% if event.docs %}
+            <a href="{{ MEDIA_URL }}{{ event.docs }}" download=""><p>Cкачать док</p></a>
+        {% endif %}
         {% if not is_written %}
             <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#exampleModal">
                 Записаться
             </button>
+        {% endif %}
+        {% if user.username == author %}
+            <a class="btn btn-secondary" href="{% url 'del_event' event.id %}" role="button">Удалить евент</a>
         {% endif %}
     </div>
     <div class="btn-group" role="group" aria-label="Basic example">
@@ -34,9 +40,9 @@
         {% for forms in grid %}
             <div class="form-inline my-2">
                 {{ forms.member1|as_crispy_field }}
-                {{ forms.member2|as_crispy_field  }}
-                {{ forms.memberwin|as_crispy_field  }}
-                {{ forms.weight|as_crispy_field  }}
+                {{ forms.member2|as_crispy_field }}
+                {{ forms.memberwin|as_crispy_field }}
+                {{ forms.weight|as_crispy_field }}
                 {{ forms.levelgrid }}
             </div>
         {% endfor %}
@@ -58,7 +64,9 @@
         <div class="alert alert-dark">
             <p> {{ forloop.counter }}
                 <span> {{ member.userid.username }}</span>
-                <span> {{ member.weight }}</span>
+                {% if member.role == 'Participant' %}
+                    <span> {{ member.weight }}</span>
+                {% endif %}
                 <span> {{ member.role }}</span>
             </p>
         </div>
@@ -66,13 +74,18 @@
     {% for addrequest in addrequests %}
         <div class="border">
             <p>{{ addrequest.role }}</p>
-            <p>{{ addrequest.weight }}</p>
+            {% if addrequest.role == 'Participant' %}
+                <p>{{ addrequest.weight }}</p>
+            {% endif %}
             <p>{{ addrequest.userid }}</p>
-            {% if user.username == author %}
+            {% if addrequest.docs %}
+                <a href="{{ MEDIA_URL }}{{ addrequest.docs }}" download="">Cкачать док </a>
+            {% endif %}
+            {% if user.username == author or is_doctor %}
                 <a class="btn btn-primary" href="{% url 'req_handler' addrequest.id 1 event.id %}"
-                   role="button">Accept</a>
+                   role="button">Принять</a>
                 <a class="btn btn-secondary" href="{% url 'req_handler' addrequest.id 0 event.id %}"
-                   role="button">Reject</a>
+                   role="button">Отклонить</a>
             {% endif %}
         </div>
     {% endfor %}
@@ -89,7 +102,8 @@
                     </button>
                 </div>
                 <div class="modal-body">
-                    <form action="{% url "add_request" event.id %}" id="addform" method="post">
+                    <form action="{% url "add_request" event.id %}" id="addform" method="post"
+                          enctype="multipart/form-data">
                         {% csrf_token %}
                         {{ addrequestform|crispy }}
                     </form>

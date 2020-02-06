@@ -1,11 +1,13 @@
 from django.urls import path
 from . import views
 from django.views.generic import TemplateView
+from django.contrib.auth.decorators import login_required
 from datetime import *
 
 urlpatterns = [
     path('', views.Main.as_view(), name="main"),
-    path('new_event', views.EventView.as_view(), name="new_event"),
+    path('new_event', login_required(views.EventView.as_view(), login_url='login'), name="new_event"),
+    path('del_event/<int:event_id>', views.DeleteEventHandler.as_view(), name="del_event"),
     path('signup', views.signup, name="signup"),
     path('event/<int:eventid>', views.EventViewDetail.as_view(), name="concrete_event"),
     path('profile/edit', views.cabinet, name="cabinet"),

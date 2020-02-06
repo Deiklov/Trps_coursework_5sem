@@ -12,6 +12,10 @@ class NewCompetitionForm(forms.ModelForm):
         exclude = ('author', 'users')
         labels = {"title": "Название"}
 
+    def __init__(self, user, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.author = user
+
 
 class AddRequestForm(forms.ModelForm):
     class Meta:

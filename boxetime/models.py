@@ -24,14 +24,19 @@ class Competition(models.Model):
     def __str__(self):
         return self.title
 
+    def get_absolute_url(self):
+        return "/event/%s" % (self.id)
+
 
 class AddRequestManager(models.Manager):
     def save(self, objects_list, user, **kwargs):
         if not AddRequest.objects.filter(userid=user, competit_id=kwargs.get('eventid')).exists():
+            kek = objects_list['docs']
             q = self.create(role=objects_list['role'],
                             weight=objects_list['weight'],
                             competit_id=kwargs.get('eventid'),
                             userid=user,
+                            docs=objects_list['docs'],
                             rank=objects_list['rank'])
 
 

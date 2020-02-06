@@ -10,6 +10,7 @@ from django.contrib.auth import *
 from .forms import *
 from .models import *
 from django.http import Http404
+from django.shortcuts import get_object_or_404
 from django.contrib import messages
 from django.contrib.auth.decorators import user_passes_test
 from django.forms import modelformset_factory
@@ -55,13 +56,18 @@ class EventViewDetail(DetailView):  # основная страница соре
         if Competition.objects.get(pk=eventid).date < timezone.now().date():
             make_pair(eventid)
         context['members'] = AddRequest.objects.select_related().filter(competit=context['object'].id,
-                                                                        acepted=True, weight=weight)
+                                                                        acepted=True)
         if not self.request.user.is_anonymous:
             context['is_written'] = AddRequest.objects.filter(competit_id=eventid, userid_id=self.request.user)
+            if AddRequest.objects.filter(userid_id=self.request.user.id, competit_id=eventid, acepted=True,
+                                         role='Doctor'):
+                context['is_doctor'] = True
+            else:
+                context['is_doctor'] = False
         context['author'] = Competition.objects.get(pk=eventid).author.username
         context['grid'] = GridFormSet(form_kwargs={'eventid': eventid, 'weight': weight},
-                              queryset=CompetitGrid.objects.filter(competitid=eventid, weight=weight).order_by(
-                                  "levelgrid"))
+                                      queryset=CompetitGrid.objects.filter(competitid=eventid, weight=weight).order_by(
+                                          "levelgrid"))
         context['weight_tuple'] = weight_tuple
         context['addrequests'] = AddRequest.objects.filter(competit=context['object'].id, acepted=False)
         context['addrequestform'] = AddRequestForm()
@@ -81,20 +87,21 @@ class ChangeGrid(RedirectView):
 
 
 # новый евент
+
 class EventView(TemplateView):
     template_name = 'new_event.html'
 
     def get_context_data(self, *args, **kwargs):
         context = super(EventView, self).get_context_data(**kwargs)
-        context["form"] = NewCompetitionForm()
+        context["form"] = NewCompetitionForm(self.request.user)
         return context
 
     def post(self, request, *args, **kwargs):
-        form = NewCompetitionForm(request.POST)
+        form = NewCompetitionForm(self.request.user, request.POST, request.FILES)
         if form.is_valid():
-            formtemp = form.save(commit=False)
-            formtemp.author = request.user
-            formtemp.save()
+            formtemp = form.save()
+            # formtemp.author = request.user
+            # formtemp.save()
             return redirect("/")
 
 
@@ -106,7 +113,7 @@ class AddRequestView(RedirectView):
         return str('/event/%d' % kwargs.get('eventid'))
 
     def get(self, request, *args, **kwargs):
-        form = AddRequestForm(request.POST)
+        form = AddRequestForm(request.POST, request.FILES)
         if form.is_valid():
             AddRequest.objects.save(form.cleaned_data, request.user, **kwargs)
         return super().get(request, *args, **kwargs)
@@ -121,11 +128,29 @@ class AddMemberHandler(RedirectView):
         acept = kwargs['flag']
         req_id = kwargs['req_id']
         addrequest = AddRequest.objects.get(pk=req_id)
-        if acept == 1:
-            addrequest.acepted = True
-            addrequest.save()
-        elif acept == 0:
-            addrequest.delete()
+        doctor = AddRequest.objects.filter(userid_id=self.request.user.id, competit_id=kwargs['event_id'], acepted=True,
+                                           role='Doctor')
+        admin_id = Competition.objects.get(pk=addrequest.competit_id).author_id
+        if doctor or self.request.user == admin_id:
+            if acept == 1:
+                addrequest.acepted = True
+                addrequest.save()
+            elif acept == 0:
+                addrequest.delete()
+        return super().get(request, *args, **kwargs)
+
+
+# удалить соревнование
+class DeleteEventHandler(RedirectView):
+    def get_redirect_url(self, *args, **kwargs):
+        return reverse('event_list')
+
+    def get(self, request, *args, **kwargs):
+        event_id = kwargs['event_id']
+        admin_id = Competition.objects.get(pk=event_id).author_id
+        if self.request.user.id == admin_id:
+            competit = get_object_or_404(Competition, pk=event_id)
+            competit.delete()
         return super().get(request, *args, **kwargs)
 
 
