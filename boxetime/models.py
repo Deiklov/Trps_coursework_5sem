@@ -11,14 +11,13 @@ class Competition(models.Model):
         ('Kickboxing', 'Кикбоксинг')
     )
     title = models.CharField(max_length=100)
-    date = models.DateField(auto_now_add=True)
+    date = models.DateField()
     place = models.CharField(max_length=255)
     responsible = models.TextField(blank=True)
     level = models.CharField(max_length=200)
     sport = models.CharField(max_length=50, choices=sport_choices, default='Boxing')
     description = models.TextField(blank=True)
     docs = models.FileField(upload_to='docs/', blank=True, null=True)
-    users = models.ManyToManyField(User, blank=True, related_name='members')
     author = models.ForeignKey(User, on_delete=models.SET(1), default=1)
 
     def __str__(self):
@@ -31,13 +30,12 @@ class Competition(models.Model):
 class AddRequestManager(models.Manager):
     def save(self, objects_list, user, **kwargs):
         if not AddRequest.objects.filter(userid=user, competit_id=kwargs.get('eventid')).exists():
-            kek = objects_list['docs']
-            q = self.create(role=objects_list['role'],
-                            weight=objects_list['weight'],
-                            competit_id=kwargs.get('eventid'),
-                            userid=user,
-                            docs=objects_list['docs'],
-                            rank=objects_list['rank'])
+            self.create(role=objects_list['role'],
+                        weight=objects_list['weight'],
+                        competit_id=kwargs.get('eventid'),
+                        userid=user,
+                        docs=objects_list['docs'],
+                        rank=objects_list['rank'])
 
 
 class AddRequest(models.Model):

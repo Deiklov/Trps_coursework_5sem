@@ -33,8 +33,7 @@
             {% endif %}
         {% endfor %}
     </div>
-    <a name="members"></a>
-    <form action="{% url 'update_grid' event.id %}" method="post" class="m-2 p-2 border border-dark">
+    <form action="{% url 'update_grid' event.id weight %}" method="post" class="m-2 p-2 border border-dark">
         {% csrf_token %}
         {{ grid.management_form }}
         {% for forms in grid %}
@@ -44,6 +43,8 @@
                 {{ forms.memberwin|as_crispy_field }}
                 {{ forms.weight|as_crispy_field }}
                 {{ forms.levelgrid }}
+                {{ forms.competitid }}
+                {{ forms.id }}
             </div>
         {% endfor %}
         {% if user.username == author %}

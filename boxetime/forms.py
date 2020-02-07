@@ -11,6 +11,7 @@ class NewCompetitionForm(forms.ModelForm):
         model = Competition
         exclude = ('author', 'users')
         labels = {"title": "Название"}
+        widgets = {'date': forms.DateInput(attrs={'type': 'date'})}
 
     def __init__(self, user, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -40,13 +41,13 @@ class GridForm(forms.ModelForm):
                                      widget=forms.Select(attrs={'readonly': 'readonly'}))
     member2 = forms.ModelChoiceField(queryset=User.objects.all(), empty_label=None, label='Синий',
                                      widget=forms.Select(attrs={'readonly': 'readonly'}))
-    memberwin = forms.ModelChoiceField(queryset=User.objects.all(), label='Победитель', empty_label=None)
+    memberwin = forms.ModelChoiceField(queryset=User.objects.all(), label='Побед', empty_label=None)
 
     class Meta:
         model = CompetitGrid
         fields = "__all__"
         labels = {
-            "levelgrid": "Уровень сетки",
+            "levelgrid": "Уровень",
             "weight": "Вес"
         }
         widgets = {'competitid': forms.HiddenInput(),
@@ -63,13 +64,14 @@ class GridForm(forms.ModelForm):
         return cleaned_data
 
     def __init__(self, *args, eventid, weight, **kwargs):
+        super().__init__(*args, **kwargs)
         if isinstance(eventid, int):
             alluserfromevent = AddRequest.objects.filter(competit_id=eventid, weight=weight).values(
                 'userid_id').distinct()
             self.base_fields['member1'].queryset = User.objects.filter(id__in=alluserfromevent)
             self.base_fields['member2'].queryset = User.objects.filter(id__in=alluserfromevent)
             self.base_fields['memberwin'].queryset = User.objects.filter(id__in=alluserfromevent)
-        super().__init__(*args, **kwargs)
+
 
 
 class LoginForm(forms.Form):

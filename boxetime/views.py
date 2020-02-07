@@ -52,6 +52,7 @@ class EventViewDetail(DetailView):  # основная страница соре
     def get_context_data(self, **kwargs):
         context = super(EventViewDetail, self).get_context_data(**kwargs)
         weight = self.request.GET.get('weight', 75)
+        context['weight'] = weight
         eventid = kwargs.get('object').id
         if Competition.objects.get(pk=eventid).date < timezone.now().date():
             make_pair(eventid)
@@ -76,14 +77,14 @@ class EventViewDetail(DetailView):  # основная страница соре
 
 class ChangeGrid(RedirectView):
     def get(self, request, *args, **kwargs):
-        forms = GridFormSet(request.POST)
+        forms = GridFormSet(request.POST, form_kwargs={'eventid': kwargs['eventid'], 'weight': kwargs['weight']})
         for form in forms:
             if form.is_valid():
                 form.save()
         return super().get(request, *args, **kwargs)
 
     def get_redirect_url(self, *args, **kwargs):
-        return str('/event/%d' % kwargs.get('eventid'))
+        return str('/event/%d?weight=%d' % (kwargs.get('eventid'), kwargs['weight']))
 
 
 # новый евент
@@ -99,9 +100,7 @@ class EventView(TemplateView):
     def post(self, request, *args, **kwargs):
         form = NewCompetitionForm(self.request.user, request.POST, request.FILES)
         if form.is_valid():
-            formtemp = form.save()
-            # formtemp.author = request.user
-            # formtemp.save()
+            form.save()
             return redirect("/")
 
 
@@ -131,7 +130,7 @@ class AddMemberHandler(RedirectView):
         doctor = AddRequest.objects.filter(userid_id=self.request.user.id, competit_id=kwargs['event_id'], acepted=True,
                                            role='Doctor')
         admin_id = Competition.objects.get(pk=addrequest.competit_id).author_id
-        if doctor or self.request.user == admin_id:
+        if doctor or self.request.user.id == admin_id:
             if acept == 1:
                 addrequest.acepted = True
                 addrequest.save()

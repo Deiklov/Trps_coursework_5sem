@@ -45,8 +45,7 @@ def make_pair(eventid):
                 CompetitGrid.objects.create(member1=member1, member2=member2, memberwin=None, weight=weight,
                                             competitid_id=competitid, levelgrid=levelgrid)
                 j += 2  # перескочили через противника
-            j = 0
-            while j < free_people:  # сделали экстра пары(онли при первом этапе)
+            while j < free_people + pair_count * 2:  # сделали экстра пары(онли при первом этапе)
                 member1 = people[j].userid
                 member2 = people[j].userid
                 memberwin = people[j].userid  # сам же выиграл
@@ -90,7 +89,9 @@ def check_all_level(compid):
                 level -= 1
                 break
             else:
-                if not check_level(compid, level - 1, weight_tuple[i]):
+                if not CompetitGrid.objects.filter(competitid=compid, levelgrid=level - 1, weight=weight_tuple[
+                    i]):  #есть ли объекты с пред левелом
+                    # if not check_level(compid, level - 1, weight_tuple[i]):
                     secondary_splitting(compid, level, weight_tuple[i])  # сплит только 1 раз
                 level -= 1
         i += 1
