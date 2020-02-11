@@ -43,7 +43,8 @@ class AddRequest(models.Model):
         ('Doctor', 'Врач'),
         ('Participant', 'Участник'),
         ('Coach', 'Тренер'),
-        ('Sponsor', 'Cпонсор')
+        ('Sponsor', 'Cпонсор'),
+        ('Referee', 'Судья'),
     )
     ranks = (
         ('novice', 'Новичок'),

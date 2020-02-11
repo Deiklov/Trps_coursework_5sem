@@ -1,0 +1,21 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block content %}
+    <div class="form-group">
+        <form class="form-inline mt-2 mt-md-0" action="{% url 'personal_results' %}">
+            <input class="form-control mr-sm-2" type="date" placeholder="Search" value="2019-11-30"
+                   name="search_date_from">
+            <input class="form-control mr-sm-2" type="date" placeholder="Search" value="2020-02-15"
+                   name="search_date_to">
+            <button class="btn btn-outline-success my-2 my-sm-0" type="submit" value="Поиск">Поиск</button>
+        </form>
+    </div>
+    {% for event in competit %}
+        <a href="{{ event.get_absolute_url }}"><p><strong>{{ forloop.counter }}</strong>{{ event }}</p></a>
+    {% endfor %}
+    {% for x in place %}
+        <span>  Занятое место на соревновании <strong>{{ forloop.counter }}</strong> -- ({{ x }})</span>
+    {% endfor %}
+
+
+{% endblock %}

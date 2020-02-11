@@ -3,6 +3,7 @@ from django.contrib.auth.models import User
 from django.contrib.auth.forms import UserCreationForm
 from django.views.generic import View
 from .utils import *
+from django.utils.decorators import method_decorator
 from django.utils import timezone
 from django.shortcuts import redirect
 from django.contrib.auth.decorators import *
@@ -160,14 +161,41 @@ class EventListView(ListView):
     context_object_name = "event_list"
 
 
+class PersonalResultsView(View):
+    def get(self, *args, **kwargs):
+        firstDate = self.request.GET.get('search_date_from', None)
+        secondDate = self.request.GET.get('search_date_to', None)
+        if firstDate and secondDate:
+            dateFrom = datetime.datetime.strptime(firstDate, "%Y-%m-%d")
+            dateTo = datetime.datetime.strptime(secondDate, "%Y-%m-%d")
+            listCompetit = AddRequest.objects.filter(userid=self.request.user.id, acepted=True).values_list(
+                'competit_id').distinct()
+            levelArray = []
+            for x in listCompetit:
+                maxlevel = CompetitGrid.objects.filter(competitid_id__in=x, memberwin=self.request.user.id).order_by(
+                    'levelgrid').values_list('levelgrid').first()
+                if maxlevel:
+                    levelArray.append(int(maxlevel[0]) + 1)
+                else:
+                    levelArray.append(int(maxlevel[0]))
+            placeArray = list(map(lambda x: str(2 ** (x - 1) + 1) + '--' + str(2 ** x), levelArray))
+            listCompetit = Competition.objects.filter(date__lte=dateTo, date__gte=dateFrom, id__in=listCompetit)
+            return render(self.request, 'personal_results.html', {'competit': listCompetit, 'place': placeArray})
+        return render(self.request, 'personal_results.html')
+
+
 # ниже регистрация login logout update_form
-@user_passes_test(lambda u: u.is_anonymous, login_url="/")
-def signup(request):
-    profileform = ProfileUpdateForm()
-    userform = ExtendsUserCreationForm()
-    if request.method == "POST":
-        user_form = ExtendsUserCreationForm(request.POST)
-        profile_form = ProfileUpdateForm(request.POST, request.FILES)
+@method_decorator(user_passes_test(lambda u: u.is_anonymous, login_url="/"), name='dispatch')
+class SingUpView(View):
+    def get(self, *args, **kwargs):
+        profileform = ProfileUpdateForm()
+        userform = ExtendsUserCreationForm()
+        context = {'formprofile': profileform, 'formuser': userform}
+        return render(self.request, 'signup.html', context=context)
+
+    def post(self, *args, **kwargs):
+        user_form = ExtendsUserCreationForm(self.request.POST)
+        profile_form = ProfileUpdateForm(self.request.POST, self.request.FILES)
         if user_form.is_valid() and profile_form.is_valid():
             user = user_form.save()
             profile = profile_form.save(commit=False)
@@ -175,11 +203,9 @@ def signup(request):
             profile.save()
             username = user_form.cleaned_data.get('username')
             password = user_form.cleaned_data.get('password1')
-            user = authenticate(request, username=username, password=password)
-            login(request, user)
+            user = authenticate(self.request, username=username, password=password)
+            login(self.request, user)
             return redirect('/')
-    context = {'formprofile': profileform, 'formuser': userform}
-    return render(request, 'signup.html', context=context)
 
 
 class LoginFormView(FormView):
@@ -218,15 +244,16 @@ class LogoutView(RedirectView):
         return super().get(request, *args, **kwargs)
 
 
-@login_required(login_url="/login")
-def cabinet(request):
-    if request.method == "POST":
-        form = ExtnedsUserChangeForm(request.POST, instance=request.user)
-        form_profile = ProfileUpdateForm(request.POST, request.FILES, instance=request.user.profile)
+class CabinetView(View):
+    def post(self, *args, **kwargs):
+        form = ExtnedsUserChangeForm(self.request.POST, instance=self.request.user)
+        form_profile = ProfileUpdateForm(self.request.POST, self.request.FILES, instance=self.request.user.profile)
         if form.is_valid() and form_profile.is_valid():
             form.save()
             form_profile.save()
             return redirect("/profile/edit")
-    user_form = ExtnedsUserChangeForm(instance=request.user)
-    profile_form = ProfileUpdateForm(instance=request.user.profile)
-    return render(request, 'cabinet.html', {'user_form': user_form, 'profile_form': profile_form})
+
+    def get(self, *args, **kwargs):
+        user_form = ExtnedsUserChangeForm(instance=self.request.user)
+        profile_form = ProfileUpdateForm(instance=self.request.user.profile)
+        return render(self.request, 'cabinet.html', {'user_form': user_form, 'profile_form': profile_form})
