@@ -14,6 +14,7 @@ class Competition(models.Model):
     date = models.DateField()
     place = models.CharField(max_length=255)
     responsible = models.TextField(blank=True)
+    age = models.PositiveSmallIntegerField()
     level = models.CharField(max_length=200)
     sport = models.CharField(max_length=50, choices=sport_choices, default='Boxing')
     description = models.TextField(blank=True)
@@ -65,6 +66,7 @@ class AddRequest(models.Model):
     userid = models.ForeignKey(User, on_delete=models.SET(1), default=1)
     acepted = models.BooleanField(default=False)
     rank = models.CharField(max_length=50, choices=ranks, default='novice', blank=True, null=True)
+    club = models.CharField(max_length=255, blank=True, null=True)
     objects = AddRequestManager()
 
     def __str__(self):

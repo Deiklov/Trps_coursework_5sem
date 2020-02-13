@@ -38,10 +38,9 @@ class SearchView(ListView):
         search_query = self.request.GET.get('search_title', None)
         if search_query:
             return Competition.objects.filter(title__icontains=search_query)
-        search_query = self.request.GET.get('search_date', None)
+        search_query = self.request.GET.get('search_age', None)
         if search_query:
-            date = datetime.datetime.strptime(search_query, "%Y-%m-%d")
-            return Competition.objects.filter(date__lte=date)
+            return Competition.objects.filter(age__lte=search_query)
 
 
 class EventViewDetail(DetailView):  # основная страница соревнования

@@ -4,19 +4,19 @@
     <p class="h2">Поля для поиска</p>
     <div class="form-group">
         <form class="form-inline mt-2 mt-md-0" action="{% url 'search' %}">
-            <input class="form-control mr-sm-2" type="date" placeholder="Search" value="2019-11-30" name="search_date">
-            <button class="btn btn-outline-success my-2 my-sm-0" type="submit">По дате</button>
+            <input class="form-control mr-sm-2" type="number" placeholder="Пример: 20" name="search_age">
+            <button class="btn btn-outline-success my-2 my-sm-0" type="submit">По минимальному возрасту</button>
         </form>
     </div>
     <div class="form-group">
         <form class="form-inline mt-2 mt-md-0" action="{% url 'search' %}">
-            <input class="form-control mr-sm-2" type="text" placeholder="Search" name="search_region">
+            <input class="form-control mr-sm-2" type="text" placeholder="Пример: Москва" name="search_region">
             <button class="btn btn-outline-success my-2 my-sm-0" type="submit"> По региону</button>
         </form>
     </div>
     <div class="form-group">
         <form class="form-inline mt-2 mt-md-0" action="{% url 'search' %}">
-            <input class="form-control mr-sm-2" type="text" placeholder="Search" name="search_title">
+            <input class="form-control mr-sm-2" type="text" placeholder="Пример: Чемпионат Москвы" name="search_title">
             <button class="btn btn-outline-success my-2 my-sm-0" type="submit">По заголовку</button>
         </form>
     </div>

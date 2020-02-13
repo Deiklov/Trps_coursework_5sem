@@ -15,7 +15,7 @@
         {% if event.docs %}
             <a href="{{ MEDIA_URL }}{{ event.docs }}" download=""><p>Cкачать док</p></a>
         {% endif %}
-        {% if not is_written %}
+        {% if not is_written and user.is_authenticated %}
             <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#exampleModal">
                 Записаться
             </button>
@@ -48,7 +48,7 @@
             </div>
         {% endfor %}
         {% if user.username == author %}
-            <input type="submit" class="btn btn-primary" value="Commit">
+            <input type="submit" class="btn btn-primary" value="Подтвердить">
         {% endif %}
     </form>
     {% for pair in griddb %}
