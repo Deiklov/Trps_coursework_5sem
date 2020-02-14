@@ -1,21 +1,14 @@
 from django.shortcuts import render, redirect, HttpResponseRedirect
-from django.contrib.auth.models import User
-from django.contrib.auth.forms import UserCreationForm
-from django.views.generic import View
 from .utils import *
 from django.utils.decorators import method_decorator
-from django.utils import timezone
 from django.shortcuts import redirect
 from django.contrib.auth.decorators import *
 from django.contrib.auth import *
 from .forms import *
 from .models import *
-from django.http import Http404
 from django.shortcuts import get_object_or_404
 from django.contrib import messages
 from django.contrib.auth.decorators import user_passes_test
-from django.forms import modelformset_factory
-from django.forms import formset_factory
 from django.views.generic.edit import *
 from django.views.generic.base import *
 from django.views.generic.list import *
@@ -102,6 +95,8 @@ class EventView(TemplateView):
         if form.is_valid():
             form.save()
             return redirect("/")
+        else:
+            return self.render_to_response({'form': form})
 
 
 # добавить заявку
@@ -205,6 +200,9 @@ class SingUpView(View):
             user = authenticate(self.request, username=username, password=password)
             login(self.request, user)
             return redirect('/')
+        else:
+            context = {'formprofile': profile_form, 'formuser': user_form}
+            return render(self.request, 'signup.html', context=context)
 
 
 class LoginFormView(FormView):
@@ -228,7 +226,7 @@ class LoginFormView(FormView):
             return self.form_invalid(form)
 
     def form_invalid(self, form):
-        messages.error(self.request, "Incorrect user data")
+        messages.error(self.request, "Неверные данные, поищите ошибку в логине или пароле")
         return super().form_invalid(form)
 
 

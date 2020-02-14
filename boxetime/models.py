@@ -14,12 +14,12 @@ class Competition(models.Model):
     date = models.DateField()
     place = models.CharField(max_length=255)
     responsible = models.TextField(blank=True)
-    age = models.PositiveSmallIntegerField()
+    age = models.PositiveSmallIntegerField(blank=True)
     level = models.CharField(max_length=200)
     sport = models.CharField(max_length=50, choices=sport_choices, default='Boxing')
     description = models.TextField(blank=True)
     docs = models.FileField(upload_to='docs/', blank=True, null=True)
-    author = models.ForeignKey(User, on_delete=models.SET(1), default=1)
+    author = models.ForeignKey(User, on_delete=models.CASCADE)
 
     def __str__(self):
         return self.title

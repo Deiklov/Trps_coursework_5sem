@@ -2,30 +2,48 @@ from django import forms
 from .models import *
 from django.forms import modelformset_factory
 from django.contrib.auth.forms import UserCreationForm, UserChangeForm
-from django.db.models import Q
-from django.forms import BaseModelFormSet
 
 
 class NewCompetitionForm(forms.ModelForm):
     class Meta:
         model = Competition
-        exclude = ('author', 'users')
-        labels = {"title": "Название"}
-        widgets = {'date': forms.DateInput(attrs={'type': 'date'})}
+        fields = "__all__"
+        labels = {"title": "Название", 'date': 'Дата', 'place': 'Место проведения', 'responsible': 'Ответственные',
+                  'age': "Минимальный возраст участников", "level": "Уровень соревнований", "sport": "Вид спорта",
+                  "description": "Описание", "docs": "Организационные документы"}
+        widgets = {'date': forms.DateInput(attrs={'type': 'date'}),
+                   'author': forms.HiddenInput(),
+                   'description': forms.Textarea(attrs={'rows': 3, 'cols': 15}),
+                   'responsible': forms.Textarea(attrs={'rows': 3, 'cols': 15})}
 
     def __init__(self, user, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.author = user
+        self.fields['author'].queryset = User.objects.filter(pk=user.id)
+        self.fields['author'].initial = User.objects.get(pk=user.id)
+
+    def clean(self):
+        super(NewCompetitionForm, self).clean()
+        title = self.cleaned_data.get('title')
+        if len(title) < 5:
+            raise forms.ValidationError('Слишком короткий заголовок')
+        author = self.cleaned_data.get('author')
+        if not User.objects.get(pk=author.id):
+            raise forms.ValidationError('Проблемы с автором')
+        data = self.cleaned_data.get('date')
+        if not data > timezone.now().date():
+            raise forms.ValidationError('Дата создания должна быть больше сегодняшнего дня')
+        return self.cleaned_data
 
 
 class AddRequestForm(forms.ModelForm):
     class Meta:
         model = AddRequest
         exclude = ('userid', 'acepted', 'competit')
-        labels = {"weight": "Вес", "docs": "Персональный документы", "role": "Ваша роль", "rank": 'Разряд'}
+        labels = {"weight": "Вес", "docs": "Персональный документы", "role": "Ваша роль", "rank": 'Разряд',
+                  'club': "Спортивный клуб"}
 
     def clean(self):
-        cleaned_data = super(AddRequestForm, self).clean()
+        super(AddRequestForm, self).clean()
         role = self.cleaned_data.get('role')
         if role != 'Participant':
             self.cleaned_data['weight'] = None
@@ -55,13 +73,13 @@ class GridForm(forms.ModelForm):
                    'weight': forms.TextInput(attrs={'readonly': 'readonly', 'size': '2'})}
 
     def clean(self):
-        cleaned_data = super(GridForm, self).clean()
+        super(GridForm, self).clean()
         member1 = self.cleaned_data.get('member1')
         member2 = self.cleaned_data.get('member2')
         memberwin = self.cleaned_data.get('memberwin')
         if memberwin != member1 and memberwin != member2:
             raise forms.ValidationError("Победитель должен быть одним из участников")
-        return cleaned_data
+        return self.cleaned_data
 
     def __init__(self, *args, eventid, weight, **kwargs):
         super().__init__(*args, **kwargs)
@@ -73,10 +91,10 @@ class GridForm(forms.ModelForm):
             self.base_fields['memberwin'].queryset = User.objects.filter(id__in=alluserfromevent)
 
 
-
 class LoginForm(forms.Form):
-    username = forms.CharField(max_length=50, widget=forms.TextInput(attrs={'class': 'form-control'}))
-    password = forms.CharField(max_length=50, widget=forms.PasswordInput(attrs={'class': "form-control"}))
+    username = forms.CharField(max_length=50, widget=forms.TextInput(attrs={'class': 'form-control'}), label="Логин")
+    password = forms.CharField(max_length=50, widget=forms.PasswordInput(attrs={'class': "form-control"}),
+                               label="Пароль")
 
 
 class RegisterForm(forms.ModelForm):
@@ -86,12 +104,13 @@ class RegisterForm(forms.ModelForm):
 
 
 class ExtendsUserCreationForm(UserCreationForm):
-    email = forms.EmailField(required=True)
-    username = forms.CharField(max_length=60)
+    email = forms.EmailField(required=True, label="Электронная почта")
+    username = forms.CharField(max_length=60, label="Логин")
 
     class Meta:
         model = User
         fields = ('username', 'email', 'password1', 'password2')
+        # labels = {'email': 'Электронная почта',"username":"логин"}
 
     def save(self, commit=True):
         user = super().save(commit=False)
@@ -103,7 +122,7 @@ class ExtendsUserCreationForm(UserCreationForm):
 
 
 class ExtnedsUserChangeForm(forms.ModelForm):
-    email = forms.EmailField()
+    email = forms.EmailField(label="Электронная почта")
 
     class Meta:
         model = User
@@ -114,6 +133,7 @@ class ProfileUpdateForm(forms.ModelForm):
     class Meta:
         model = Profile
         fields = ['avatar']
+        labels = {'avatar': "Персональная картинка"}
 
 
 GridFormSet = modelformset_factory(model=CompetitGrid, form=GridForm, extra=0)
